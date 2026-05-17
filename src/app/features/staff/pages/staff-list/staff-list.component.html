@@ -1,0 +1,199 @@
+<p-confirmDialog />
+
+<div class="staff-page">
+
+  <!-- Page header -->
+  <div class="staff-page__header">
+    <div>
+      <h2 class="staff-page__title">Teachers & Staff</h2>
+      <p class="staff-page__subtitle">Manage staff directory, department assignments, and personal budgets.</p>
+    </div>
+    <p-button label="Add Staff" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="displayItems()"
+    [rowHover]="true"
+    [scrollable]="true"
+    [sortField]="'name'"
+    [sortOrder]="1"
+    class="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '48rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name">Name <p-sortIcon field="name" /></th>
+        <th>Department</th>
+        <th style="width: 7rem;">Grade</th>
+        <th>Email</th>
+        <th style="width: 10rem;">Personal Budget</th>
+        <th style="width: 8rem;"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="staff-page__name">{{ item.name }}</td>
+        <td class="staff-page__meta">{{ deptName(item.departmentId) }}</td>
+        <td class="staff-page__meta">{{ item.grade || '—' }}</td>
+        <td class="staff-page__meta">{{ item.email }}</td>
+        <td class="staff-page__budget">
+          {{ item.personalBudget != null ? (item.personalBudget | currency:'USD':'symbol':'1.0-0') : '—' }}
+        </td>
+        <td>
+          <div class="staff-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit"
+              (onClick)="openEdit(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              pTooltip="Delete"
+              (onClick)="confirmDelete(item)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="staff-page__empty">
+          No staff yet. Click "Add Staff" to create the first record.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editing() ? 'Edit: ' + editing()!.name : 'New Staff Member'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '28rem' }"
+>
+  <form [formGroup]="form" class="staff-dialog__form">
+
+    <!-- Name -->
+    <div class="staff-dialog__field">
+      <label for="staffName" class="staff-dialog__label">
+        Name <span class="staff-dialog__required">*</span>
+      </label>
+      <input
+        id="staffName"
+        pInputText
+        formControlName="name"
+        placeholder="e.g. Stephanie Galea"
+        class="w-full"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="staff-dialog__error">Name is required.</small>
+      }
+    </div>
+
+    <!-- Email -->
+    <div class="staff-dialog__field">
+      <label for="staffEmail" class="staff-dialog__label">
+        Email <span class="staff-dialog__required">*</span>
+      </label>
+      <input
+        id="staffEmail"
+        pInputText
+        type="email"
+        formControlName="email"
+        placeholder="e.g. sgalea@academyofthecity.org"
+        class="w-full"
+      />
+      @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <small class="staff-dialog__error">A valid email is required.</small>
+      }
+    </div>
+
+    <!-- Department -->
+    <div class="staff-dialog__field">
+      <label for="staffDept" class="staff-dialog__label">Department</label>
+      <p-select
+        id="staffDept"
+        formControlName="departmentId"
+        [options]="deptOptions()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select department"
+        [showClear]="true"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Grade band -->
+    <div class="staff-dialog__field">
+      <label for="staffGrade" class="staff-dialog__label">Grade Band</label>
+      <input
+        id="staffGrade"
+        pInputText
+        formControlName="grade"
+        placeholder="e.g. K-5 or 5-8"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Grade assignments (multi-select) -->
+    <div class="staff-dialog__field">
+      <label for="staffGradeAssign" class="staff-dialog__label">Grade Assignments</label>
+      <p-multiselect
+        id="staffGradeAssign"
+        formControlName="gradeAssignments"
+        [options]="gradeOptions()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select grade levels"
+        display="chip"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Personal Budget -->
+    <div class="staff-dialog__field">
+      <label for="staffBudget" class="staff-dialog__label">Personal Budget</label>
+      <p-inputnumber
+        id="staffBudget"
+        formControlName="personalBudget"
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        placeholder="e.g. 600"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Phone -->
+    <div class="staff-dialog__field">
+      <label for="staffPhone" class="staff-dialog__label">Phone</label>
+      <input
+        id="staffPhone"
+        pInputText
+        formControlName="phone"
+        placeholder="e.g. 555-123-4567"
+        class="w-full"
+      />
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

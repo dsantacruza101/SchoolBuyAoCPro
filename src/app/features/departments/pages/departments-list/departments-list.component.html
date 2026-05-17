@@ -1,0 +1,184 @@
+<p-confirmDialog />
+
+<div class="dept-page">
+
+  <!-- Page header -->
+  <div class="dept-page__header">
+    <div>
+      <h2 class="dept-page__title">Departments</h2>
+      <p class="dept-page__subtitle">Manage budget departments and their annual allocations.</p>
+    </div>
+    <p-button label="Add Department" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Kind filter chips -->
+  <p-selectbutton
+    [options]="kindFilterOptions"
+    [ngModel]="activeKindFilter()"
+    (ngModelChange)="activeKindFilter.set($event)"
+    optionLabel="label"
+    optionValue="value"
+    class="dept-page__filter"
+  />
+
+  <!-- Table -->
+  <p-table
+    [value]="displayItems()"
+    [rowHover]="true"
+    [scrollable]="true"
+    class="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '40rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th style="width: 9rem;">Type</th>
+        <th>Parent</th>
+        <th style="width: 11rem;">Annual Budget</th>
+        <th style="width: 8rem;"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="dept-page__name">{{ item.name }}</td>
+        <td>
+          <p-tag [value]="kindLabel(item.kind)" [severity]="kindSeverity(item.kind)" />
+        </td>
+        <td class="dept-page__parent">{{ parentName(item.parentId) }}</td>
+        <td class="dept-page__budget">
+          {{ item.annualBudget != null ? (item.annualBudget | currency:'USD':'symbol':'1.0-0') : '—' }}
+        </td>
+        <td>
+          <div class="dept-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit"
+              (onClick)="openEdit(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              pTooltip="Delete"
+              (onClick)="confirmDelete(item)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="dept-page__empty">
+          No departments yet. Click "Add Department" to create the first one.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editing() ? 'Edit: ' + editing()!.name : 'New Department'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '26rem' }"
+>
+  <form [formGroup]="form" class="dept-dialog__form">
+
+    <!-- Name -->
+    <div class="dept-dialog__field">
+      <label for="deptName" class="dept-dialog__label">
+        Name <span class="dept-dialog__required">*</span>
+      </label>
+      <input
+        id="deptName"
+        pInputText
+        formControlName="name"
+        placeholder="e.g. Math Department"
+        class="w-full"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="dept-dialog__error">Name is required.</small>
+      }
+    </div>
+
+    <!-- Kind -->
+    <div class="dept-dialog__field">
+      <label for="deptKind" class="dept-dialog__label">
+        Type <span class="dept-dialog__required">*</span>
+      </label>
+      <p-select
+        id="deptKind"
+        formControlName="kind"
+        [options]="kindOptions"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Parent Department — only for admin_sub -->
+    @if (isAdminSub) {
+      <div class="dept-dialog__field">
+        <label for="deptParent" class="dept-dialog__label">
+          Parent Department <span class="dept-dialog__required">*</span>
+        </label>
+        <p-select
+          id="deptParent"
+          formControlName="parentId"
+          [options]="parentDepts()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select parent"
+          class="w-full"
+        />
+        @if (form.get('parentId')?.invalid && form.get('parentId')?.touched) {
+          <small class="dept-dialog__error">Parent department is required.</small>
+        }
+      </div>
+    }
+
+    <!-- Annual Budget -->
+    <div class="dept-dialog__field">
+      <label for="deptBudget" class="dept-dialog__label">Annual Budget</label>
+      <p-inputnumber
+        id="deptBudget"
+        formControlName="annualBudget"
+        mode="currency"
+        currency="USD"
+        locale="en-US"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        placeholder="e.g. 5000"
+        class="w-full"
+      />
+    </div>
+
+    <!-- Notes -->
+    <div class="dept-dialog__field">
+      <label for="deptNotes" class="dept-dialog__label">Notes</label>
+      <textarea
+        id="deptNotes"
+        pTextarea
+        formControlName="notes"
+        rows="3"
+        placeholder="Optional notes..."
+        class="w-full"
+      ></textarea>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

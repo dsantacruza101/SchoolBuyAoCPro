@@ -57,7 +57,11 @@ export class AuthService {
       this.user.set(firebaseUser);
 
       if (firebaseUser) {
-        await this.upsertUserDoc(firebaseUser);
+        try {
+          await this.upsertUserDoc(firebaseUser);
+        } catch (e) {
+          console.warn('AuthService: upsertUserDoc failed (check Firestore rules for /users)', e);
+        }
         const token = await firebaseUser.getIdTokenResult();
         const schoolCaps = (token.claims['schools'] as Record<string, { caps: string[] }>)?.['aoc'];
         this.caps.set(schoolCaps?.caps ?? []);
@@ -162,17 +166,22 @@ export class AuthService {
    * @param firebaseUser - The Firebase `User` object from the auth state change.
    */
   private async upsertUserDoc(firebaseUser: User): Promise<void> {
-    const ref = doc(this.firestore, `users/${firebaseUser.uid}`);
-    await setDoc(
-      ref,
-      {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
-        photoURL: firebaseUser.photoURL,
-        lastLoginAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
+    try {
+      const ref = doc(this.firestore, `users/${firebaseUser.uid}`);
+      await setDoc(
+        ref,
+        {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          lastLoginAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
+    } catch (error) {
+      console.warn('AuthService: upsertUserDoc failed (check Firestore rules for /users)', error);
+    }
   }
 }

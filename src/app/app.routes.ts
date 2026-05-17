@@ -78,7 +78,23 @@ export const routes: Routes = [
           import('./features/grade-levels/grade-levels.routes').then((m) => m.gradeLevelsRoutes),
       },
 
-      // Feature routes are added here as tickets are completed (US-006 +)
+      {
+        path: 'departments',
+        canActivate: [roleGuard],
+        data: { cap: 'departments.manage', title: 'Departments', subtitle: 'Budget departments and annual allocations' },
+        loadChildren: () =>
+          import('./features/departments/departments.routes').then((m) => m.departmentsRoutes),
+      },
+
+      {
+        path: 'staff',
+        canActivate: [roleGuard],
+        data: { cap: 'staff.manage', title: 'Teachers & Staff', subtitle: 'Staff directory and personal budgets' },
+        loadChildren: () =>
+          import('./features/staff/staff.routes').then((m) => m.staffRoutes),
+      },
+
+      // Feature routes are added here as tickets are completed (US-008 +)
     ],
   },
 
