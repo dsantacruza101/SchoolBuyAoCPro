@@ -1,0 +1,37 @@
+<nav class="sidebar">
+
+  <!-- Brand header -->
+  <div class="sidebar__brand">
+    <i class="pi pi-th-large sidebar__brand-icon"></i>
+    <div>
+      <div class="sidebar__brand-title">SchoolBuy AoC Pro</div>
+      <div class="sidebar__brand-school">{{ schoolName() }}</div>
+    </div>
+  </div>
+
+  <!-- Navigation sections -->
+  <div class="sidebar__nav">
+    @for (section of sections(); track section[0]) {
+      <div class="sidebar__section-label">{{ sectionLabels[section[0]] }}</div>
+
+      @for (item of section[1]; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="sidebar__item--active"
+          class="sidebar__item"
+          [attr.aria-label]="item.label"
+        >
+          <i [class]="item.icon + ' sidebar__item-icon'"></i>
+          <span class="sidebar__item-label">{{ item.label }}</span>
+          @if (item.badge?.(); as count) {
+            <p-badge [value]="count" severity="danger" class="sidebar__item-badge" />
+          }
+        </a>
+      }
+    }
+  </div>
+
+  <!-- Fiscal year footer -->
+  <div class="sidebar__footer">FY 2025-26</div>
+
+</nav>

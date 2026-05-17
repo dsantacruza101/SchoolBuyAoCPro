@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" target-language="es" datatype="plaintext" original="ng2.template">
+    <body>
+      <!--
+        This file contains Spanish (es) translations.
+        Each <trans-unit> must match the id in messages.xlf.
+        After running `npm run extract-i18n`, copy new units here and fill <target>.
+
+        Example:
+        <trans-unit id="app.title" datatype="html">
+          <source>School Buy</source>
+          <target>School Buy</target>
+        </trans-unit>
+      -->
+    </body>
+  </file>
+</xliff>

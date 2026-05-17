@@ -1,0 +1,197 @@
+<p-confirmDialog />
+
+<div class="roles-page">
+
+  <!-- Page header -->
+  <div class="roles-page__header">
+    <div>
+      <h2 class="roles-page__title">Roles &amp; Permissions</h2>
+      <p class="roles-page__subtitle">Define what each role can do across the system.</p>
+    </div>
+    <p-button
+      label="Add Role"
+      icon="pi pi-plus"
+      (onClick)="openCreate()"
+    />
+  </div>
+
+  <!-- Roles table -->
+  <p-table
+    [value]="roles()"
+    [rowHover]="true"
+    class="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '42rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Role</th>
+        <th style="width: 9rem;">Code</th>
+        <th style="width: 6rem; text-align:center;">Caps</th>
+        <th style="width: 6rem; text-align:center;">Members</th>
+        <th style="width: 8rem;"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-role>
+      <tr>
+        <!-- Name + system badge -->
+        <td>
+          <div class="roles-page__name-cell">
+            <span class="roles-page__role-name">{{ role.name }}</span>
+            @if (role.isSystem) {
+              <p-tag value="system" severity="secondary" class="roles-page__system-tag" />
+            }
+          </div>
+          @if (role.description) {
+            <div class="roles-page__description">{{ role.description }}</div>
+          }
+        </td>
+
+        <!-- Code -->
+        <td><code class="roles-page__code">{{ role.code }}</code></td>
+
+        <!-- Caps count -->
+        <td style="text-align:center;">
+          <p-badge [value]="role.capabilities?.length ?? 0" severity="info" />
+        </td>
+
+        <!-- Members count -->
+        <td style="text-align:center;">
+          <p-badge
+            [value]="role.memberCount"
+            [severity]="role.memberCount > 0 ? 'success' : 'secondary'"
+          />
+        </td>
+
+        <!-- Actions -->
+        <td>
+          <div class="roles-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit role"
+              (onClick)="openEdit(role)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              [disabled]="cannotDelete(role)"
+              [pTooltip]="deleteTooltip(role)"
+              (onClick)="confirmDelete(role)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" style="text-align:center; color: var(--p-text-muted-color); padding: 2rem;">
+          No roles found.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editingRole() ? 'Edit role: ' + editingRole()!.name : 'New role'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="roles-dialog"
+  [style]="{ width: '42rem' }"
+>
+  <form [formGroup]="form" class="roles-dialog__form">
+
+    <!-- Name -->
+    <div class="roles-dialog__field">
+      <label for="roleName" class="roles-dialog__label">Name <span class="roles-dialog__required">*</span></label>
+      <input
+        id="roleName"
+        pInputText
+        formControlName="name"
+        placeholder="e.g. Tech Lead"
+        class="w-full"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="roles-dialog__error">Name is required (min 2 characters).</small>
+      }
+    </div>
+
+    <!-- Code -->
+    <div class="roles-dialog__field">
+      <label for="roleCode" class="roles-dialog__label">
+        Code <span class="roles-dialog__required">*</span>
+        @if (editingRole()?.isSystem) {
+          <span class="roles-dialog__locked"><i class="pi pi-lock"></i> immutable</span>
+        }
+      </label>
+      <input
+        id="roleCode"
+        pInputText
+        formControlName="code"
+        placeholder="e.g. tech_lead"
+        class="w-full"
+      />
+      @if (form.get('code')?.invalid && form.get('code')?.touched) {
+        <small class="roles-dialog__error">Code is required. Use lowercase letters, numbers, and underscores only.</small>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="roles-dialog__field">
+      <label for="roleDesc" class="roles-dialog__label">Description</label>
+      <textarea
+        id="roleDesc"
+        pTextarea
+        formControlName="description"
+        rows="2"
+        placeholder="What can this role do?"
+        class="w-full"
+      ></textarea>
+    </div>
+
+  </form>
+
+  <!-- Capability grid — outside <form> to avoid ngModel/formGroup conflict -->
+  <div class="roles-dialog__caps-section">
+    <div class="roles-dialog__caps-title">Capabilities</div>
+
+    <div class="roles-dialog__cap-groups">
+      @for (group of capGroups; track group.group) {
+        <div class="roles-dialog__cap-group">
+          <div class="roles-dialog__cap-group-label">{{ group.group }}</div>
+          @for (entry of group.caps; track entry.cap) {
+            <div class="roles-dialog__cap-row" (click)="toggleCap(entry.cap)">
+              <p-checkbox
+                [binary]="true"
+                [(ngModel)]="capMap[entry.cap]"
+                (ngModelChange)="onCapToggle(entry.cap, $event)"
+                [inputId]="entry.cap"
+              />
+              <label [for]="entry.cap" class="roles-dialog__cap-label">{{ entry.label }}</label>
+              <code class="roles-dialog__cap-code">{{ entry.cap }}</code>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      [loading]="saving()"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>

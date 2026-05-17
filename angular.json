@@ -16,6 +16,15 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "es": {
+            "translation": "src/locale/messages.es.xlf",
+            "baseHref": "/es/"
+          }
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -32,15 +41,19 @@
               "node_modules/primeicons/primeicons.css",
               "node_modules/primeflex/primeflex.css",
               "src/styles.css"
+            ],
+            "polyfills": [
+              "@angular/localize/init"
             ]
           },
           "configurations": {
             "production": {
+              "localize": true,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.5MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -60,6 +73,12 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "en-US": {
+              "localize": ["en-US"]
+            },
+            "es": {
+              "localize": ["es"]
             }
           },
           "defaultConfiguration": "production"
@@ -72,9 +91,23 @@
             },
             "development": {
               "buildTarget": "SchoolBuyAoCPro:build:development"
+            },
+            "en-US": {
+              "buildTarget": "SchoolBuyAoCPro:build:development,en-US"
+            },
+            "es": {
+              "buildTarget": "SchoolBuyAoCPro:build:development,es"
             }
           },
           "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "outputPath": "src/locale",
+            "outFile": "messages.xlf",
+            "format": "xlf"
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"

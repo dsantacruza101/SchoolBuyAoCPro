@@ -1,0 +1,195 @@
+<p-confirmDialog />
+
+<div class="users-page">
+
+  <!-- Page header -->
+  <div class="users-page__header">
+    <div>
+      <h2 class="users-page__title">Users &amp; Access</h2>
+      <p class="users-page__subtitle">Manage who has access to SchoolBuy and what they can do.</p>
+    </div>
+    <p-button
+      label="Invite User"
+      icon="pi pi-user-plus"
+      (onClick)="openInviteDialog()"
+    />
+  </div>
+
+  <!-- Members table -->
+  <p-table
+    [value]="members()"
+    [rowHover]="true"
+    class="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '48rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3.5rem;"></th>
+        <th>Member</th>
+        <th style="width: 14rem;">Role</th>
+        <th style="width: 7rem; text-align: center;">Active</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-member>
+      <tr [class.users-page__row--inactive]="!member.active">
+
+        <!-- Avatar -->
+        <td>
+          @if (member.photoURL) {
+            <p-avatar [image]="member.photoURL" shape="circle" size="normal" />
+          } @else {
+            <p-avatar [label]="getInitials(member.displayName)" shape="circle" size="normal" />
+          }
+        </td>
+
+        <!-- Name / Email -->
+        <td>
+          <div class="users-page__member-name">{{ member.displayName }}</div>
+          <div class="users-page__member-email">{{ member.email }}</div>
+        </td>
+
+        <!-- Role select -->
+        <td>
+          <p-select
+            [options]="roles()"
+            [ngModel]="member.roleId"
+            (ngModelChange)="changeRole(member, $event)"
+            optionLabel="name"
+            optionValue="id"
+            [disabled]="isLastActiveAdmin(member)"
+            [pTooltip]="isLastActiveAdmin(member) ? 'Last active admin — role cannot be changed' : ''"
+            appendTo="body"
+            styleClass="users-page__role-select"
+          />
+        </td>
+
+        <!-- Active toggle -->
+        <td style="text-align: center;">
+          <p-toggleswitch
+            [ngModel]="member.active"
+            (ngModelChange)="toggleActive(member, $event)"
+            [disabled]="isLastActiveAdmin(member)"
+            [pTooltip]="isLastActiveAdmin(member) ? 'Last active admin — cannot be disabled' : ''"
+          />
+        </td>
+
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="users-page__empty">No members found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Pending invites -->
+  @if (pendingInvites().length > 0) {
+    <div class="users-page__invites-section">
+      <div class="users-page__invites-header">
+        <span class="users-page__invites-title">Pending Invites</span>
+        <p-badge [value]="pendingInvites().length" severity="warn" />
+      </div>
+
+      <p-table
+        [value]="pendingInvites()"
+        [rowHover]="true"
+        class="p-datatable-sm"
+        [tableStyle]="{ 'min-width': '32rem' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Email</th>
+            <th style="width: 10rem;">Role</th>
+            <th style="width: 10rem;">Expires</th>
+            <th style="width: 5rem;"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-invite>
+          <tr>
+            <td>{{ invite.email }}</td>
+            <td><code class="users-page__role-code">{{ invite.roleCode }}</code></td>
+            <td class="users-page__expires">
+              {{ invite.expiresAt?.toDate() | date:'mediumDate' }}
+            </td>
+            <td>
+              <p-button
+                icon="pi pi-times"
+                [text]="true"
+                size="small"
+                severity="danger"
+                pTooltip="Revoke invite"
+                (onClick)="confirmRevoke(invite)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+</div>
+
+<!-- Invite dialog -->
+<p-dialog
+  header="Invite User"
+  [(visible)]="inviteDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '30rem' }"
+>
+  <form [formGroup]="inviteForm" class="invite-dialog__form">
+
+    <!-- Email -->
+    <div class="invite-dialog__field">
+      <label for="inviteEmail" class="invite-dialog__label">
+        Email <span class="invite-dialog__required">*</span>
+      </label>
+      <input
+        id="inviteEmail"
+        pInputText
+        type="email"
+        formControlName="email"
+        placeholder="user@academyofthecity.org"
+        class="w-full"
+      />
+      @if (inviteForm.get('email')?.invalid && inviteForm.get('email')?.touched) {
+        <small class="invite-dialog__error">A valid email address is required.</small>
+      }
+    </div>
+
+    <!-- Role -->
+    <div class="invite-dialog__field">
+      <label for="inviteRole" class="invite-dialog__label">
+        Role <span class="invite-dialog__required">*</span>
+      </label>
+      <p-select
+        inputId="inviteRole"
+        formControlName="roleId"
+        [options]="roles()"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select a role"
+        class="w-full"
+        appendTo="body"
+      />
+      @if (inviteForm.get('roleId')?.invalid && inviteForm.get('roleId')?.touched) {
+        <small class="invite-dialog__error">Please select a role.</small>
+      }
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeInviteDialog()" [disabled]="saving()" />
+    <p-button
+      label="Send Invite"
+      icon="pi pi-send"
+      [loading]="saving()"
+      (onClick)="sendInvite()"
+    />
+  </ng-template>
+</p-dialog>

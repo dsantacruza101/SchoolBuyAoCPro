@@ -1,0 +1,207 @@
+/* ── Wrapper ─────────────────────────────────────────────────── */
+:host {
+  display: block;
+}
+
+.login-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Left panel ──────────────────────────────────────────────── */
+.login-panel-left {
+  display: none; /* hidden on mobile */
+  width: 280px;
+  flex-shrink: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 1.75rem;
+  background: var(--p-primary-800);
+  color: #fff;
+}
+
+.login-panel-left__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* School logo in the left panel */
+.login-school-logo {
+  width: 48px;
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+}
+
+.login-app-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.login-app-sub {
+  font-size: 0.7rem;
+  opacity: 0.55;
+  margin-top: 2px;
+}
+
+.login-tagline {
+  font-size: 1.1rem;
+  font-weight: 300;
+  line-height: 1.65;
+  opacity: 0.9;
+  color: #fff;
+}
+
+.login-panel-left__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.login-fy {
+  font-size: 0.75rem;
+  opacity: 0.45;
+}
+
+/* ── Right panel ─────────────────────────────────────────────── */
+.login-panel-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--p-surface-ground);
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+:host ::ng-deep .login-card {
+  width: 100%;
+  max-width: 26rem;
+  box-shadow: var(--shadow-card);
+}
+
+:host ::ng-deep .login-card .p-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-card__header {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.login-card__lang {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+/* Logo shown in card header on mobile (left panel is hidden) */
+.login-card__logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.login-card__logo {
+  width: 72px;
+  height: auto;
+}
+
+/* Hide card logo when left panel is visible */
+@media (min-width: 768px) {
+  .login-card__logo-wrap {
+    display: none;
+  }
+}
+
+.login-card__title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.login-card__subtitle {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  margin-top: 0.25rem;
+  line-height: 1.5;
+}
+
+.login-card__footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Form fields ─────────────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.login-field-error {
+  font-size: 0.75rem;
+  color: var(--p-red-500);
+}
+
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.login-forgot {
+  font-size: 0.8rem;
+  color: var(--p-primary-500);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.login-forgot:hover {
+  text-decoration: underline;
+}
+
+.login-divider-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--p-text-muted-color);
+}
+
+/* ── Responsive: show left panel at md+ ─────────────────────── */
+@media (min-width: 768px) {
+  .login-panel-left {
+    display: flex;
+  }
+}

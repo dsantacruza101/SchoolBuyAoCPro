@@ -1,0 +1,117 @@
+<p-confirmDialog />
+
+<div class="gl-page">
+
+  <!-- Page header -->
+  <div class="gl-page__header">
+    <div>
+      <h2 class="gl-page__title">Grade Levels</h2>
+      <p class="gl-page__subtitle">Define the academic levels used across staff, events, and requests.</p>
+    </div>
+    <p-button label="Add Grade Level" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="gradeLevels()"
+    [rowHover]="true"
+    class="p-datatable-sm"
+    [tableStyle]="{ 'min-width': '28rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th style="width: 8rem; text-align: center;">Sort Order</th>
+        <th style="width: 8rem;"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="gl-page__name">{{ item.name }}</td>
+        <td style="text-align: center; color: var(--p-text-muted-color);">{{ item.sortOrder }}</td>
+        <td>
+          <div class="gl-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit"
+              (onClick)="openEdit(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              pTooltip="Delete"
+              (onClick)="confirmDelete(item)"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="gl-page__empty">
+          No grade levels yet. Click "Add Grade Level" to create the first one.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editing() ? 'Edit: ' + editing()!.name : 'New Grade Level'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '22rem' }"
+>
+  <form [formGroup]="form" class="gl-dialog__form">
+
+    <!-- Name -->
+    <div class="gl-dialog__field">
+      <label for="glName" class="gl-dialog__label">
+        Name <span class="gl-dialog__required">*</span>
+      </label>
+      <input
+        id="glName"
+        pInputText
+        formControlName="name"
+        placeholder="e.g. Kindergarten"
+        class="w-full"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="gl-dialog__error">Name is required.</small>
+      }
+    </div>
+
+    <!-- Sort Order -->
+    <div class="gl-dialog__field">
+      <label for="glSort" class="gl-dialog__label">Sort Order</label>
+      <p-inputnumber
+        inputId="glSort"
+        formControlName="sortOrder"
+        [min]="0"
+        [showButtons]="true"
+        class="w-full"
+      />
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button
+      label="Save"
+      icon="pi pi-check"
+      [loading]="saving()"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>

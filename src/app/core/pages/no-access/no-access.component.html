@@ -1,0 +1,26 @@
+<div class="no-access">
+  <p-card styleClass="no-access__card">
+    <div class="no-access__body">
+
+      <i class="pi pi-lock no-access__icon"></i>
+
+      <h2 class="no-access__title">No access</h2>
+
+      <p class="no-access__message">
+        You don't have permission to view this page.
+        @if (cap()) {
+          It requires the <code class="no-access__cap">{{ cap() }}</code> capability.
+        }
+        Ask an administrator to grant it.
+      </p>
+
+      <p-button
+        label="Back to dashboard"
+        icon="pi pi-arrow-left"
+        routerLink="/dashboard"
+        styleClass="no-access__btn"
+      />
+
+    </div>
+  </p-card>
+</div>

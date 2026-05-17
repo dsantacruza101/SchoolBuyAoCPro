@@ -43,9 +43,15 @@ __screenshots__/
 .env.local
 .env.*.local
 
+# Firebase Admin service account key — never commit
+scripts/serviceAccount.json
+
 # System files
 .DS_Store
 Thumbs.db
 
 #Claude
 CLAUDE.md
+
+# Reference Documentation
+/docs

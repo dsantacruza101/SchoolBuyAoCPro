@@ -1,0 +1,45 @@
+.not-found {
+  display: flex;
+  justify-content: center;
+  padding-top: 3rem;
+}
+
+.not-found__card {
+  width: 100%;
+  max-width: 30rem;
+}
+
+.not-found__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.not-found__code {
+  font-size: 5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--p-surface-300, #cbd5e1);
+}
+
+.not-found__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.not-found__message {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--p-text-muted-color);
+  line-height: 1.6;
+  max-width: 22rem;
+}
+
+.not-found__btn {
+  margin-top: 0.5rem;
+}

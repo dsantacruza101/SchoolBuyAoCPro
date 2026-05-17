@@ -1,0 +1,16 @@
+<div class="lang-switcher" role="navigation" i18n-aria-label aria-label="Language selector">
+  @for (locale of locales; track locale.code) {
+    <button
+      class="lang-switcher__btn"
+      [class.lang-switcher__btn--active]="locale.code === currentLocale"
+      [attr.aria-current]="locale.code === currentLocale ? 'true' : null"
+      [attr.aria-label]="locale.code === currentLocale ? locale.label + ' (current)' : locale.label"
+      (click)="switchTo(locale.baseHref)"
+    >
+      {{ locale.label }}
+    </button>
+    @if (!$last) {
+      <span class="lang-switcher__divider" aria-hidden="true">|</span>
+    }
+  }
+</div>

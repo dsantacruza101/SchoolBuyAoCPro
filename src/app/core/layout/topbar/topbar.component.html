@@ -1,0 +1,31 @@
+<header class="topbar">
+
+  <!-- Page title -->
+  <div class="topbar__title-group">
+    <h2 class="topbar__title">{{ pageTitle() }}</h2>
+    @if (pageSubtitle()) {
+      <span class="topbar__subtitle">{{ pageSubtitle() }}</span>
+    }
+  </div>
+
+  <!-- User area -->
+  <div class="topbar__user">
+    @if (profile()?.displayName) {
+      <span class="topbar__display-name">{{ profile()!.displayName }}</span>
+    }
+
+    <p-avatar
+      [image]="profile()?.photoURL ?? undefined"
+      [label]="profile()?.photoURL ? undefined : avatarLabel"
+      shape="circle"
+      size="normal"
+      class="topbar__avatar"
+      (click)="menu.toggle($event)"
+      [attr.aria-label]="'Open user menu'"
+      style="cursor: pointer;"
+    />
+
+    <p-menu #menu [model]="userMenu" [popup]="true" appendTo="body" />
+  </div>
+
+</header>

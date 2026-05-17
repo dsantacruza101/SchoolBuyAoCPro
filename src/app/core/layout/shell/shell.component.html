@@ -1,0 +1,13 @@
+<div class="shell">
+  <!-- Fixed sidebar (hidden below 768px) -->
+  <app-sidebar />
+
+  <!-- Main content area shifted right of the sidebar -->
+  <div class="shell__main">
+    <app-topbar />
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

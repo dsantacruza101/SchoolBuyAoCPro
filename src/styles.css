@@ -1,71 +1,89 @@
 /* =========================================================
-   Design Tokens — CSS Custom Properties
+   Fonts
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+/* =========================================================
+   Design Tokens — aliased to PrimeNG CSS variables
+   Colors come from PrimeNG Aura Indigo — no hardcoded hex.
+   These aliases exist so custom layout components (sidebar,
+   topbar, KPI cards) can reference a single token name
+   without importing PrimeNG internals directly.
    ========================================================= */
 :root {
-  /* Colors */
-  --color-primary: #3b82f6;
-  --color-primary-dark: #1d4ed8;
-  --color-secondary: #64748b;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #06b6d4;
+  /* Primary — resolved by PrimeNG Aura Indigo preset */
+  --color-primary:         var(--p-primary-500);
+  --color-primary-dark:    var(--p-primary-700);
+  --color-primary-light:   var(--p-primary-100);
+  --color-primary-text:    var(--p-primary-contrast-500);
 
-  /* Neutrals */
-  --color-bg: #ffffff;
-  --color-bg-alt: #f8fafc;
-  --color-surface: #f1f5f9;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-inverse: #ffffff;
+  /* Surfaces */
+  --color-bg:              var(--p-surface-ground);
+  --color-bg-alt:          var(--p-surface-section);
+  --color-surface:         var(--p-surface-card);
+  --color-border:          var(--p-content-border-color);
+  --color-overlay:         var(--p-surface-overlay);
+
+  /* Text */
+  --color-text:            var(--p-text-color);
+  --color-text-muted:      var(--p-text-muted-color);
+  --color-text-inverse:    var(--p-primary-contrast-500);
+
+  /* Semantic — PrimeNG severity palette */
+  --color-success:         var(--p-green-500);
+  --color-success-bg:      var(--p-green-50);
+  --color-warning:         var(--p-yellow-500);
+  --color-warning-bg:      var(--p-yellow-50);
+  --color-danger:          var(--p-red-500);
+  --color-danger-bg:       var(--p-red-50);
+  --color-info:            var(--p-blue-500);
+  --color-info-bg:         var(--p-blue-50);
+
+  /* Typography */
+  --font-family-base:      'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-family-mono:      'DM Mono', ui-monospace, monospace;
+
+  --font-size-xs:   0.75rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.125rem;
+  --font-size-xl:   1.25rem;
+  --font-size-2xl:  1.5rem;
+  --font-size-3xl:  1.875rem;
+  --font-size-4xl:  2.25rem;
+
+  --font-weight-normal:    400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+
+  --line-height-tight:    1.25;
+  --line-height-normal:   1.5;
+  --line-height-relaxed:  1.75;
 
   /* Spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* Typography */
-  --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
-
-  /* Border */
-  --border-radius-sm: 0.25rem;
-  --border-radius-md: 0.375rem;
-  --border-radius-lg: 0.5rem;
-  --border-radius-xl: 0.75rem;
-  --border-radius-full: 9999px;
+  /* Border radii — matches mockup structure */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-full: 9999px;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 4px 20px rgb(0 0 0 / 0.08);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -73,25 +91,17 @@
   --transition-slow: 350ms ease;
 
   /* Z-index scale */
-  --z-below: -1;
-  --z-base: 0;
-  --z-above: 1;
+  --z-below:    -1;
+  --z-base:      0;
+  --z-above:     1;
   --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-overlay: 300;
-  --z-modal: 400;
-  --z-toast: 500;
-}
+  --z-sticky:   200;
+  --z-overlay:  300;
+  --z-modal:    400;
+  --z-toast:    500;
 
-/* Dark mode tokens */
-.dark-mode {
-  --color-bg: #0f172a;
-  --color-bg-alt: #1e293b;
-  --color-surface: #334155;
-  --color-border: #475569;
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-text-inverse: #0f172a;
+  /* Layout — matches mockup structure */
+  --sidebar-width: 238px;
 }
 
 /* =========================================================
@@ -152,15 +162,11 @@ ol {
 /* =========================================================
    Typography — mobile-first, scales up at breakpoints
    ========================================================= */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: var(--font-weight-bold);
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 h1 { font-size: var(--font-size-2xl); }
@@ -190,6 +196,13 @@ p {
   color: var(--color-text-muted);
 }
 
+/* Mono helper — applied to amounts/numbers throughout the app */
+.mono {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 /* =========================================================
-   Breakpoints reference (xs: 0 | sm: 576 | md: 768 | lg: 992 | xl: 1200 | xxl: 1400)
+   Breakpoints reference
+   xs: 0 | sm: 576px | md: 768px | lg: 992px | xl: 1200px | xxl: 1400px
    ========================================================= */
