@@ -32,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   { section: 'purchasing', label: 'Requests',             icon: 'pi pi-list',      route: '/requests',     cap: 'requests.view' },
   { section: 'purchasing', label: 'Submit Request',       icon: 'pi pi-pencil',    route: '/requests/new', cap: 'requests.create' },
   { section: 'finance',    label: 'Budgets',              icon: 'pi pi-wallet',    route: '/budgets',      cap: 'budgets.view' },
+  { section: 'finance',    label: 'Events',               icon: 'pi pi-calendar',  route: '/events',       cap: 'events.manage' },
   { section: 'finance',    label: 'Audit Trail',          icon: 'pi pi-search',    route: '/audit',        cap: 'audit.view' },
   { section: 'directory',  label: 'Grade Levels',          icon: 'pi pi-graduation-cap', route: '/grade-levels', cap: 'grades.manage' },
   { section: 'directory',  label: 'Teachers & Staff',     icon: 'pi pi-users',     route: '/staff',        cap: 'staff.manage' },

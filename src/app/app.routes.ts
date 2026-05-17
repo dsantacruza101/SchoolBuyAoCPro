@@ -110,7 +110,31 @@ export const routes: Routes = [
           import('./features/settings/settings.routes').then((m) => m.settingsRoutes),
       },
 
-      // Feature routes are added here as tickets are completed (US-010 +)
+      {
+        path: 'budgets',
+        canActivate: [roleGuard],
+        data: { cap: 'budgets.view', title: 'Budgets', subtitle: 'Annual allocations and spending overview' },
+        loadChildren: () =>
+          import('./features/budgets/budgets.routes').then((m) => m.budgetsRoutes),
+      },
+
+      {
+        path: 'events',
+        canActivate: [roleGuard],
+        data: { cap: 'events.manage', title: 'Events', subtitle: 'School events with dedicated budget allocations' },
+        loadChildren: () =>
+          import('./features/events/events.routes').then((m) => m.eventsRoutes),
+      },
+
+      {
+        path: 'requests',
+        canActivate: [roleGuard],
+        data: { cap: 'requests.view', title: 'Requests', subtitle: 'Purchase request management' },
+        loadChildren: () =>
+          import('./features/requests/requests.routes').then((m) => m.requestsRoutes),
+      },
+
+      // Feature routes are added here as tickets are completed (US-013 +)
     ],
   },
 

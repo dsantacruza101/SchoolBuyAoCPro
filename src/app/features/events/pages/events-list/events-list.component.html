@@ -1,0 +1,171 @@
+<p-confirmDialog />
+
+<div class="events-page">
+
+  <!-- Page header -->
+  <div class="events-page__header">
+    <div>
+      <h2 class="events-page__title">Events</h2>
+      <p class="events-page__subtitle">School events with dedicated budget allocations.</p>
+    </div>
+    <p-button label="Add Event" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Empty state -->
+  @if (displayItems().length === 0) {
+    <div class="events-page__empty">
+      <i class="pi pi-calendar events-page__empty-icon"></i>
+      <p>No events yet. Click "Add Event" to create your first event.</p>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (displayItems().length > 0) {
+    <div class="events-table-wrapper">
+      <table class="events-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Fiscal Year</th>
+            <th>Dates</th>
+            <th class="events-table__num">Budget</th>
+            <th>Owner</th>
+            <th class="events-table__center">Participants</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of displayItems(); track item.id) {
+            <tr>
+              <td>
+                <span class="events-table__name">{{ item.name }}</span>
+                @if (item.description) {
+                  <span class="events-table__desc">{{ item.description }}</span>
+                }
+              </td>
+              <td>
+                <p-tag
+                  [value]="kindLabel(item.kind)"
+                  [severity]="kindSeverity(item.kind)"
+                />
+              </td>
+              <td class="events-table__muted">{{ item.fiscalYear }}</td>
+              <td class="events-table__muted">
+                @if (item.startDate) {
+                  {{ item.startDate.toDate() | date:'MMM d' }}
+                  @if (item.endDate) {
+                    – {{ item.endDate.toDate() | date:'MMM d, yyyy' }}
+                  }
+                } @else {
+                  <span class="events-table__dash">—</span>
+                }
+              </td>
+              <td class="events-table__num">
+                {{ item.budget | currency:'USD':'symbol':'1.2-2' }}
+              </td>
+              <td class="events-table__muted">{{ item.ownerStaffName ?? '—' }}</td>
+              <td class="events-table__center">
+                @if (participantCount(item) > 0) {
+                  <span class="events-table__badge">{{ participantCount(item) }}</span>
+                } @else {
+                  <span class="events-table__dash">—</span>
+                }
+              </td>
+              <td class="events-table__actions">
+                <p-button icon="pi pi-pencil" [text]="true" size="small" pTooltip="Edit" (onClick)="openEdit(item)" />
+                <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger" pTooltip="Delete" (onClick)="confirmDelete(item)" />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editing() ? 'Edit: ' + editing()!.name : 'New Event'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '34rem' }"
+>
+  <form [formGroup]="form" class="event-dialog__form">
+
+    <!-- Name -->
+    <div class="event-dialog__field">
+      <label class="event-dialog__label">Name <span class="event-dialog__required">*</span></label>
+      <input pInputText formControlName="name" placeholder="e.g. Spring Fair" class="w-full" />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="event-dialog__error">Name is required.</small>
+      }
+    </div>
+
+    <!-- Kind + Fiscal Year -->
+    <div class="event-dialog__row">
+      <div class="event-dialog__field">
+        <label class="event-dialog__label">Kind <span class="event-dialog__required">*</span></label>
+        <p-select formControlName="kind" [options]="kindOptions"
+          optionLabel="label" optionValue="value" class="w-full" />
+      </div>
+      <div class="event-dialog__field">
+        <label class="event-dialog__label">Fiscal Year <span class="event-dialog__required">*</span></label>
+        <input pInputText formControlName="fiscalYear" placeholder="e.g. 2025-26" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Start Date + End Date -->
+    <div class="event-dialog__row">
+      <div class="event-dialog__field">
+        <label class="event-dialog__label">Start Date</label>
+        <p-datepicker formControlName="startDate" [showIcon]="true"
+          dateFormat="mm/dd/yy" [showButtonBar]="true" class="w-full" />
+      </div>
+      <div class="event-dialog__field">
+        <label class="event-dialog__label">End Date</label>
+        <p-datepicker formControlName="endDate" [showIcon]="true"
+          dateFormat="mm/dd/yy" [showButtonBar]="true" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Budget -->
+    <div class="event-dialog__field">
+      <label class="event-dialog__label">Budget <span class="event-dialog__required">*</span></label>
+      <p-inputnumber formControlName="budget" mode="currency" currency="USD"
+        [min]="0" class="w-full" />
+    </div>
+
+    <!-- Owner -->
+    <div class="event-dialog__field">
+      <label class="event-dialog__label">Event Owner</label>
+      <p-select formControlName="ownerStaffId"
+        [options]="staffOptions()" optionLabel="label" optionValue="value"
+        placeholder="Select staff member" [showClear]="true" class="w-full" />
+    </div>
+
+    <!-- Participants -->
+    <div class="event-dialog__field">
+      <label class="event-dialog__label">Participants</label>
+      <p-multiselect formControlName="participantIds"
+        [options]="staffOptions()" optionLabel="label" optionValue="value"
+        placeholder="Select participants" display="chip" class="w-full" />
+    </div>
+
+    <!-- Description -->
+    <div class="event-dialog__field">
+      <label class="event-dialog__label">Description</label>
+      <textarea pTextarea formControlName="description"
+        rows="2" placeholder="Optional notes about this event…" class="w-full"></textarea>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

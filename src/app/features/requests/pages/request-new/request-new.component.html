@@ -1,0 +1,203 @@
+<div class="req-new-page">
+
+  <div class="req-new-page__header">
+    <div>
+      <h2 class="req-new-page__title">Submit Purchase Request</h2>
+      <p class="req-new-page__subtitle">Fill in the details below. Your request will be reviewed and approved.</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="req-form" (ngSubmit)="submit()">
+
+    <!-- ── Section 1: Budget source ──────────────────────────────────────── -->
+    <div class="req-form__section">
+      <h3 class="req-form__section-title">Budget Source</h3>
+
+      <div class="req-form__field">
+        <label class="req-form__label">Charge this request to <span class="req-form__required">*</span></label>
+        <p-selectbutton
+          formControlName="budgetSourceKind"
+          [options]="budgetSourceOptions"
+          optionLabel="label"
+          optionValue="value"
+        />
+      </div>
+
+      @if (isDepartment()) {
+        <div class="req-form__field">
+          <label class="req-form__label">Department <span class="req-form__required">*</span></label>
+          <p-select
+            formControlName="departmentId"
+            [options]="deptOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select department"
+            [filter]="true"
+            class="w-full"
+          />
+          @if (!form.get('departmentId')?.value && form.get('departmentId')?.touched) {
+            <small class="req-form__error">Department is required.</small>
+          }
+        </div>
+      }
+
+      @if (isPersonal()) {
+        <div class="req-form__info-box">
+          <i class="pi pi-user"></i>
+          <div>
+            <strong>Personal Budget</strong>
+            <p>This request will be charged to your personal teaching budget.</p>
+            @if (currentStaff()?.personalBudget != null) {
+              <span class="req-form__info-budget">
+                Budget: {{ currentStaff()!.personalBudget | currency:'USD':'symbol':'1.2-2' }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (isEvent()) {
+        <div class="req-form__field">
+          <label class="req-form__label">Event <span class="req-form__required">*</span></label>
+          <p-select
+            formControlName="eventId"
+            [options]="eventOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select event"
+            [filter]="true"
+            class="w-full"
+          />
+          @if (!form.get('eventId')?.value && form.get('eventId')?.touched) {
+            <small class="req-form__error">Event is required.</small>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Section 2: Vendor & Category ─────────────────────────────────── -->
+    <div class="req-form__section">
+      <h3 class="req-form__section-title">Vendor & Category</h3>
+
+      <div class="req-form__row">
+        <div class="req-form__field">
+          <label class="req-form__label">Vendor <span class="req-form__required">*</span></label>
+          <p-select
+            formControlName="vendorId"
+            [options]="vendorOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select vendor"
+            [filter]="true"
+            class="w-full"
+          />
+          @if (form.get('vendorId')?.invalid && form.get('vendorId')?.touched) {
+            <small class="req-form__error">Vendor is required.</small>
+          }
+        </div>
+        <div class="req-form__field">
+          <label class="req-form__label">Category</label>
+          <p-select
+            formControlName="categoryCode"
+            [options]="categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select category"
+            [showClear]="true"
+            class="w-full"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 3: Item details ───────────────────────────────────────── -->
+    <div class="req-form__section">
+      <h3 class="req-form__section-title">Item Details</h3>
+
+      <div class="req-form__field">
+        <label class="req-form__label">Description <span class="req-form__required">*</span></label>
+        <input
+          pInputText
+          formControlName="description"
+          placeholder="e.g. Headphones 20-pack — for listening center"
+          class="w-full"
+        />
+        @if (form.get('description')?.invalid && form.get('description')?.touched) {
+          <small class="req-form__error">Description is required.</small>
+        }
+      </div>
+
+      <div class="req-form__row req-form__row--3">
+        <div class="req-form__field">
+          <label class="req-form__label">Unit Price <span class="req-form__required">*</span></label>
+          <p-inputnumber
+            formControlName="unitPrice"
+            mode="currency"
+            currency="USD"
+            [min]="0.01"
+            class="w-full"
+          />
+          @if (form.get('unitPrice')?.invalid && form.get('unitPrice')?.touched) {
+            <small class="req-form__error">Enter a price greater than $0.</small>
+          }
+        </div>
+        <div class="req-form__field">
+          <label class="req-form__label">Quantity <span class="req-form__required">*</span></label>
+          <p-inputnumber
+            formControlName="quantity"
+            [min]="1"
+            [showButtons]="true"
+            class="w-full"
+          />
+        </div>
+        <div class="req-form__field">
+          <label class="req-form__label">Total</label>
+          <div class="req-form__total">
+            {{ totalPrice() | currency:'USD':'symbol':'1.2-2' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="req-form__field">
+        <label class="req-form__label">Item URL</label>
+        <input
+          pInputText
+          formControlName="itemUrl"
+          placeholder="e.g. https://amazon.com/dp/…"
+          class="w-full"
+        />
+      </div>
+
+      <div class="req-form__field">
+        <label class="req-form__label">Notes</label>
+        <textarea
+          pTextarea
+          formControlName="notes"
+          rows="3"
+          placeholder="Any additional context for the approver…"
+          class="w-full"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- ── Actions ───────────────────────────────────────────────────────── -->
+    <div class="req-form__actions">
+      <p-button
+        type="submit"
+        label="Submit Request"
+        icon="pi pi-send"
+        [loading]="submitting()"
+        [disabled]="form.invalid || !budgetSourceValid"
+      />
+      <p-button
+        type="button"
+        label="Clear"
+        [text]="true"
+        [disabled]="submitting()"
+        (onClick)="resetForm()"
+      />
+    </div>
+
+  </form>
+
+</div>

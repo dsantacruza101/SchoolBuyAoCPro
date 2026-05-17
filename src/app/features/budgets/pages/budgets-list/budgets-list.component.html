@@ -1,0 +1,223 @@
+<div class="budgets-page">
+
+  <div class="budgets-page__header">
+    <div>
+      <h2 class="budgets-page__title">Budgets</h2>
+      <p class="budgets-page__subtitle">Annual allocations for departments and staff personal budgets.</p>
+    </div>
+  </div>
+
+  <p-tabs value="departments">
+
+    <p-tablist>
+      <p-tab value="departments">
+        <i class="pi pi-sitemap"></i>
+        Departments
+        <span class="budgets-tab__total">{{ totalDeptBudget() | currency:'USD':'symbol':'1.0-0' }}</span>
+      </p-tab>
+      <p-tab value="staff">
+        <i class="pi pi-users"></i>
+        Staff Budgets
+        <span class="budgets-tab__total">{{ totalStaffBudget() | currency:'USD':'symbol':'1.0-0' }}</span>
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ── Departments tab ─────────────────────────────────────────────── -->
+      <p-tabpanel value="departments">
+        <div class="budgets-tab">
+
+          @if (deptRows().length === 0) {
+            <div class="budgets-tab__empty">
+              <i class="pi pi-sitemap"></i>
+              <p>No departments found. Add departments in the Directory section first.</p>
+            </div>
+          } @else {
+            <div class="budgets-table-wrapper">
+              <table class="budgets-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th class="budgets-table__num">Annual Budget</th>
+                    <th class="budgets-table__num">Committed</th>
+                    <th class="budgets-table__num">Available</th>
+                    <th class="budgets-table__bar">Usage</th>
+                    <th class="budgets-table__health">Health</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of deptRows(); track row.id) {
+                    <tr>
+                      <td>
+                        <span class="budgets-table__name">{{ row.name }}</span>
+                        <span class="budgets-table__kind">{{ row.kind }}</span>
+                      </td>
+                      <td class="budgets-table__num">
+                        {{ row.annualBudget | currency:'USD':'symbol':'1.2-2' }}
+                      </td>
+                      <td class="budgets-table__num">
+                        @if (row.hasRollup) {
+                          {{ row.committed | currency:'USD':'symbol':'1.2-2' }}
+                        } @else {
+                          <span class="budgets-table__no-data" pTooltip="No activity yet">—</span>
+                        }
+                      </td>
+                      <td class="budgets-table__num">
+                        @if (row.hasRollup) {
+                          <span [class.budgets-table__overbudget]="row.available < 0">
+                            {{ row.available | currency:'USD':'symbol':'1.2-2' }}
+                          </span>
+                        } @else {
+                          {{ row.annualBudget | currency:'USD':'symbol':'1.2-2' }}
+                        }
+                      </td>
+                      <td class="budgets-table__bar">
+                        <div class="budget-bar">
+                          <div
+                            class="budget-bar__fill"
+                            [class]="healthSeverity(row.health)"
+                            [style.width.%]="row.hasRollup ? (row.pctCommitted * 100 | number:'1.0-0') : 0"
+                          ></div>
+                        </div>
+                        @if (row.hasRollup) {
+                          <span class="budget-bar__label">{{ row.pctCommitted | percent:'1.0-0' }}</span>
+                        } @else {
+                          <span class="budget-bar__label budgets-table__no-data">0 %</span>
+                        }
+                      </td>
+                      <td class="budgets-table__health">
+                        <span class="budgets-health" [class]="healthSeverity(row.health)">
+                          {{ healthLabel(row.health) }}
+                        </span>
+                      </td>
+                      <td>
+                        <p-button
+                          icon="pi pi-pencil"
+                          [text]="true"
+                          size="small"
+                          pTooltip="Adjust budget"
+                          (onClick)="openAdjustDept(row)"
+                        />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr class="budgets-table__totals">
+                    <td><strong>Total</strong></td>
+                    <td class="budgets-table__num"><strong>{{ totalDeptBudget() | currency:'USD':'symbol':'1.2-2' }}</strong></td>
+                    <td class="budgets-table__num"><strong>{{ totalDeptCommitted() | currency:'USD':'symbol':'1.2-2' }}</strong></td>
+                    <td colspan="4"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          }
+
+        </div>
+      </p-tabpanel>
+
+      <!-- ── Staff budgets tab ───────────────────────────────────────────── -->
+      <p-tabpanel value="staff">
+        <div class="budgets-tab">
+
+          @if (staffRows().length === 0) {
+            <div class="budgets-tab__empty">
+              <i class="pi pi-users"></i>
+              <p>No staff found. Add staff in the Directory section first.</p>
+            </div>
+          } @else {
+            <div class="budgets-table-wrapper">
+              <table class="budgets-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th class="budgets-table__num">Personal Budget</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of staffRows(); track row.id) {
+                    <tr>
+                      <td class="budgets-table__name">{{ row.name }}</td>
+                      <td class="budgets-table__muted">{{ row.departmentName ?? '—' }}</td>
+                      <td class="budgets-table__num">
+                        {{ row.personalBudget | currency:'USD':'symbol':'1.2-2' }}
+                      </td>
+                      <td>
+                        <p-button
+                          icon="pi pi-pencil"
+                          [text]="true"
+                          size="small"
+                          pTooltip="Adjust budget"
+                          (onClick)="openAdjustStaff(row)"
+                        />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr class="budgets-table__totals">
+                    <td><strong>Total</strong></td>
+                    <td></td>
+                    <td class="budgets-table__num"><strong>{{ totalStaffBudget() | currency:'USD':'symbol':'1.2-2' }}</strong></td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          }
+
+        </div>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+</div>
+
+<!-- ── Adjust dialog ───────────────────────────────────────────────────── -->
+<p-dialog
+  [header]="dialogHeader()"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '24rem' }"
+>
+  <form [formGroup]="adjustForm" class="adjust-dialog__form">
+
+    <div class="adjust-dialog__field">
+      <label class="adjust-dialog__label">
+        New Amount <span class="adjust-dialog__required">*</span>
+      </label>
+      <p-inputnumber
+        formControlName="newAmount"
+        mode="currency"
+        currency="USD"
+        [min]="0"
+        class="w-full"
+      />
+      @if (adjustForm.get('newAmount')?.invalid && adjustForm.get('newAmount')?.touched) {
+        <small class="adjust-dialog__error">Amount must be 0 or greater.</small>
+      }
+    </div>
+
+    @if (editTarget()?.kind === 'dept') {
+      <div class="adjust-dialog__field">
+        <label class="adjust-dialog__label">Reason / Notes</label>
+        <textarea pTextarea formControlName="reason"
+          rows="2" placeholder="e.g. Year-end allocation increase…" class="w-full"></textarea>
+      </div>
+    }
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>
