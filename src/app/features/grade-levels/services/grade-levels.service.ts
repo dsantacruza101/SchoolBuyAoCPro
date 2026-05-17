@@ -10,6 +10,7 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
@@ -67,7 +68,7 @@ export class GradeLevelsService {
   }
 
   /**
-   * Updates an existing grade level.
+   * Updates an existing grade level's editable fields.
    *
    * @param id - Firestore document ID.
    * @param form - Fields to update.
@@ -79,6 +80,22 @@ export class GradeLevelsService {
       updatedAt: serverTimestamp(),
       updatedByUid: this.auth.user()?.uid ?? null,
     });
+  }
+
+  /**
+   * Atomically persists a new display order via a Firestore WriteBatch.
+   * A single batch commit triggers exactly one snapshot, eliminating
+   * intermediate states and visual snap-back during drag-and-drop reorder.
+   *
+   * @param items - Grade levels in their new display order.
+   */
+  async reorder(items: GradeLevelModel[]): Promise<void> {
+    const batch = writeBatch(this.firestore);
+    items.forEach((item, index) => {
+      const ref = doc(this.firestore, `schools/${SCHOOL_ID}/gradeLevels/${item.id}`);
+      batch.update(ref, { sortOrder: (index + 1) * 10 });
+    });
+    await batch.commit();
   }
 
   /**

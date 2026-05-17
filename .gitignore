@@ -44,7 +44,13 @@ __screenshots__/
 .env.*.local
 
 # Firebase Admin service account key — never commit
-scripts/serviceAccount.json
+scripts/serviceAccount*.json
+
+# Firebase CLI cache and debug logs
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
 
 # System files
 .DS_Store

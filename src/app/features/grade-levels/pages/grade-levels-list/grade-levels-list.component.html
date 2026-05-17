@@ -6,30 +6,37 @@
   <div class="gl-page__header">
     <div>
       <h2 class="gl-page__title">Grade Levels</h2>
-      <p class="gl-page__subtitle">Define the academic levels used across staff, events, and requests.</p>
+      <p class="gl-page__subtitle">Drag rows to reorder. Changes are saved automatically.</p>
     </div>
     <p-button label="Add Grade Level" icon="pi pi-plus" (onClick)="openCreate()" />
   </div>
 
   <!-- Table -->
   <p-table
-    [value]="gradeLevels()"
+    [value]="displayItems()"
     [rowHover]="true"
+    (onRowReorder)="onRowReorder()"
     class="p-datatable-sm"
-    [tableStyle]="{ 'min-width': '28rem' }"
+    [tableStyle]="{ 'min-width': '24rem' }"
   >
     <ng-template pTemplate="header">
       <tr>
+        <th style="width: 3rem;"></th>
         <th>Name</th>
-        <th style="width: 8rem; text-align: center;">Sort Order</th>
         <th style="width: 8rem;"></th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-item>
-      <tr>
+    <ng-template pTemplate="body" let-item let-index="rowIndex">
+      <tr [pReorderableRow]="index">
+
+        <!-- Drag handle -->
+        <td>
+          <span class="pi pi-bars gl-page__drag-handle" pReorderableRowHandle></span>
+        </td>
+
         <td class="gl-page__name">{{ item.name }}</td>
-        <td style="text-align: center; color: var(--p-text-muted-color);">{{ item.sortOrder }}</td>
+
         <td>
           <div class="gl-page__actions">
             <p-button
@@ -49,6 +56,7 @@
             />
           </div>
         </td>
+
       </tr>
     </ng-template>
 
@@ -73,8 +81,6 @@
   [style]="{ width: '22rem' }"
 >
   <form [formGroup]="form" class="gl-dialog__form">
-
-    <!-- Name -->
     <div class="gl-dialog__field">
       <label for="glName" class="gl-dialog__label">
         Name <span class="gl-dialog__required">*</span>
@@ -90,28 +96,10 @@
         <small class="gl-dialog__error">Name is required.</small>
       }
     </div>
-
-    <!-- Sort Order -->
-    <div class="gl-dialog__field">
-      <label for="glSort" class="gl-dialog__label">Sort Order</label>
-      <p-inputnumber
-        inputId="glSort"
-        formControlName="sortOrder"
-        [min]="0"
-        [showButtons]="true"
-        class="w-full"
-      />
-    </div>
-
   </form>
 
   <ng-template pTemplate="footer">
     <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
-    <p-button
-      label="Save"
-      icon="pi pi-check"
-      [loading]="saving()"
-      (onClick)="save()"
-    />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
   </ng-template>
 </p-dialog>

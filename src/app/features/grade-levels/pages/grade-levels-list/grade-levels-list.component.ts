@@ -1,11 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
@@ -16,8 +15,13 @@ import { GradeLevelFormModel, GradeLevelModel } from '../../models';
 /**
  * Grade Levels management page (`/grade-levels`).
  *
- * Lists all grade levels ordered by `sortOrder`. Administrators can
- * create, edit, and delete entries via an inline dialog.
+ * Sort order is managed automatically:
+ * - New items are appended at the end (max sortOrder + 10).
+ * - Users reorder rows via drag-and-drop; changes are committed atomically
+ *   via a Firestore WriteBatch so only one snapshot fires.
+ *
+ * `toSignal()` is used throughout to keep state reactive and avoid
+ * ExpressionChangedAfterItHasBeenCheckedError (NG0100).
  */
 @Component({
   selector: 'app-grade-levels-list',
@@ -27,7 +31,6 @@ import { GradeLevelFormModel, GradeLevelModel } from '../../models';
     ButtonModule,
     ConfirmDialogModule,
     DialogModule,
-    InputNumberModule,
     InputTextModule,
     TableModule,
     TooltipModule,
@@ -41,16 +44,21 @@ export class GradeLevelsListComponent implements OnInit {
   private readonly confirm = inject(ConfirmationService);
   private readonly fb = inject(FormBuilder);
 
-  /** Live stream of all grade levels, ordered by sortOrder. */
-  readonly gradeLevels = toSignal(this.service.getAll(), { initialValue: [] });
+  /** Live Firestore data, ordered by sortOrder. */
+  private readonly firestoreData = toSignal(this.service.getAll(), { initialValue: [] });
 
-  /** Controls dialog visibility. */
+  /**
+   * Holds the locally-reordered array while a drag-and-drop write is in flight,
+   * preventing the live snapshot from showing intermediate Firestore states.
+   * Cleared once the WriteBatch is confirmed.
+   */
+  private readonly optimisticOrder = signal<GradeLevelModel[] | null>(null);
+
+  /** What the table renders — optimistic state when reordering, Firestore otherwise. */
+  readonly displayItems = computed(() => this.optimisticOrder() ?? this.firestoreData());
+
   readonly dialogVisible = signal(false);
-
-  /** True while a save is in flight. */
   readonly saving = signal(false);
-
-  /** The grade level being edited, or `null` when creating. */
   readonly editing = signal<GradeLevelModel | null>(null);
 
   form!: FormGroup;
@@ -58,25 +66,24 @@ export class GradeLevelsListComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1)]],
-      sortOrder: [100, [Validators.required, Validators.min(0)]],
     });
   }
 
   /** Opens the dialog in create mode. */
   openCreate(): void {
     this.editing.set(null);
-    this.form.reset({ sortOrder: 100 });
+    this.form.reset();
     this.dialogVisible.set(true);
   }
 
   /**
-   * Opens the dialog in edit mode for an existing grade level.
+   * Opens the dialog in edit mode.
    *
-   * @param item - The grade level to load into the form.
+   * @param item - Grade level to load into the form.
    */
   openEdit(item: GradeLevelModel): void {
     this.editing.set(item);
-    this.form.patchValue({ name: item.name, sortOrder: item.sortOrder });
+    this.form.patchValue({ name: item.name });
     this.dialogVisible.set(true);
   }
 
@@ -84,10 +91,10 @@ export class GradeLevelsListComponent implements OnInit {
   closeDialog(): void {
     this.dialogVisible.set(false);
     this.editing.set(null);
-    this.form.reset({ sortOrder: 100 });
+    this.form.reset();
   }
 
-  /** Saves the form — creates or updates depending on `editing()`. */
+  /** Saves the form — creates (appended at end) or updates name only. */
   async save(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -95,16 +102,20 @@ export class GradeLevelsListComponent implements OnInit {
     }
 
     this.saving.set(true);
-    const payload = this.form.getRawValue() as GradeLevelFormModel;
+    const { name } = this.form.getRawValue() as { name: string };
     const item = this.editing();
 
     try {
       if (item) {
-        await this.service.update(item.id, payload);
-        this.msg.add({ severity: 'success', summary: 'Updated', detail: payload.name });
+        await this.service.update(item.id, { name });
+        this.msg.add({ severity: 'success', summary: 'Updated', detail: name });
       } else {
-        await this.service.create(payload);
-        this.msg.add({ severity: 'success', summary: 'Created', detail: payload.name });
+        const data = this.firestoreData();
+        const nextSortOrder = data.length > 0
+          ? Math.max(...data.map((i) => i.sortOrder)) + 10
+          : 10;
+        await this.service.create({ name, sortOrder: nextSortOrder });
+        this.msg.add({ severity: 'success', summary: 'Created', detail: name });
       }
       this.closeDialog();
     } catch {
@@ -115,9 +126,26 @@ export class GradeLevelsListComponent implements OnInit {
   }
 
   /**
+   * Fires after PrimeNG mutates `displayItems` in-place via drag-and-drop.
+   * Reads the already-reordered array, sets optimistic state, then commits
+   * all sortOrder updates atomically via a WriteBatch (one snapshot, no flicker).
+   */
+  async onRowReorder(): Promise<void> {
+    const reordered = [...this.displayItems()];
+    this.optimisticOrder.set(reordered);
+    try {
+      await this.service.reorder(reordered);
+    } catch {
+      this.msg.add({ severity: 'error', summary: 'Error', detail: 'Could not save order.' });
+    } finally {
+      this.optimisticOrder.set(null);
+    }
+  }
+
+  /**
    * Prompts for confirmation then deletes the grade level.
    *
-   * @param item - The grade level to delete.
+   * @param item - Grade level to delete.
    */
   confirmDelete(item: GradeLevelModel): void {
     this.confirm.confirm({
