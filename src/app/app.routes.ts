@@ -94,7 +94,23 @@ export const routes: Routes = [
           import('./features/staff/staff.routes').then((m) => m.staffRoutes),
       },
 
-      // Feature routes are added here as tickets are completed (US-008 +)
+      {
+        path: 'vendors',
+        canActivate: [roleGuard],
+        data: { cap: 'vendors.manage', title: 'Vendors', subtitle: 'Approved supplier directory' },
+        loadChildren: () =>
+          import('./features/vendors/vendors.routes').then((m) => m.vendorsRoutes),
+      },
+
+      {
+        path: 'settings',
+        canActivate: [roleGuard],
+        data: { cap: 'settings.edit', title: 'Settings', subtitle: 'Categories, statuses and school configuration' },
+        loadChildren: () =>
+          import('./features/settings/settings.routes').then((m) => m.settingsRoutes),
+      },
+
+      // Feature routes are added here as tickets are completed (US-010 +)
     ],
   },
 

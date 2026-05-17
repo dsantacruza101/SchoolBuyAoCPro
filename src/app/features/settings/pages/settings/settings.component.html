@@ -1,0 +1,259 @@
+<p-confirmDialog />
+
+<div class="settings-page">
+
+  <div class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Settings</h2>
+      <p class="settings-page__subtitle">Manage categories and purchase request statuses.</p>
+    </div>
+  </div>
+
+  <p-tabs value="categories">
+
+    <p-tablist>
+      <p-tab value="categories">
+        <i class="pi pi-tag"></i>
+        Categories
+      </p-tab>
+      <p-tab value="statuses">
+        <i class="pi pi-circle"></i>
+        Statuses
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+
+      <!-- ── Categories tab ─────────────────────────────────────────────── -->
+      <p-tabpanel value="categories">
+        <div class="settings-tab">
+
+          <div class="settings-tab__toolbar">
+            <p-button label="Add Category" icon="pi pi-plus" size="small" (onClick)="openCreateCat()" />
+          </div>
+
+          @if (categories().length === 0) {
+            <div class="settings-tab__empty">
+              <i class="pi pi-tag"></i>
+              <p>No categories yet. Add your first category.</p>
+            </div>
+          } @else {
+            <div class="settings-table-wrapper">
+              <table class="settings-table">
+                <thead>
+                  <tr>
+                    <th>Color</th>
+                    <th>Code</th>
+                    <th>Label</th>
+                    <th>Sort</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of categories(); track item.code) {
+                    <tr>
+                      <td>
+                        <span class="color-dot" [style.background]="item.color"></span>
+                      </td>
+                      <td><code class="settings-table__code">{{ item.code }}</code></td>
+                      <td>{{ item.label }}</td>
+                      <td>{{ item.sortOrder }}</td>
+                      <td class="settings-table__actions">
+                        <p-button icon="pi pi-pencil" [text]="true" size="small" pTooltip="Edit" (onClick)="openEditCat(item)" />
+                        <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger" pTooltip="Delete" (onClick)="confirmDeleteCat(item)" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+        </div>
+      </p-tabpanel>
+
+      <!-- ── Statuses tab ───────────────────────────────────────────────── -->
+      <p-tabpanel value="statuses">
+        <div class="settings-tab">
+
+          <div class="settings-tab__toolbar">
+            <p-button label="Add Status" icon="pi pi-plus" size="small" (onClick)="openCreateStatus()" />
+          </div>
+
+          @if (statuses().length === 0) {
+            <div class="settings-tab__empty">
+              <i class="pi pi-circle"></i>
+              <p>No statuses yet. Run the seed script to load system statuses.</p>
+            </div>
+          } @else {
+            <div class="settings-table-wrapper">
+              <table class="settings-table">
+                <thead>
+                  <tr>
+                    <th>Color</th>
+                    <th>Code</th>
+                    <th>Label</th>
+                    <th>Terminal</th>
+                    <th>Sort</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of statuses(); track item.code) {
+                    <tr>
+                      <td>
+                        <span class="color-dot" [style.background]="item.color"></span>
+                      </td>
+                      <td>
+                        <code class="settings-table__code">{{ item.code }}</code>
+                        @if (item.isSystem) {
+                          <p-tag value="system" severity="secondary" class="settings-table__system-tag" />
+                        }
+                      </td>
+                      <td>{{ item.label }}</td>
+                      <td>
+                        @if (item.isTerminal) {
+                          <i class="pi pi-check-circle settings-table__terminal"></i>
+                        } @else {
+                          <span class="settings-table__dash">—</span>
+                        }
+                      </td>
+                      <td>{{ item.sortOrder }}</td>
+                      <td class="settings-table__actions">
+                        <p-button icon="pi pi-pencil" [text]="true" size="small" pTooltip="Edit" (onClick)="openEditStatus(item)" />
+                        <p-button
+                          icon="pi pi-trash"
+                          [text]="true"
+                          size="small"
+                          severity="danger"
+                          pTooltip="Delete"
+                          [disabled]="item.isSystem"
+                          (onClick)="confirmDeleteStatus(item)"
+                        />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+        </div>
+      </p-tabpanel>
+
+    </p-tabpanels>
+  </p-tabs>
+
+</div>
+
+<!-- ── Category dialog ─────────────────────────────────────────────────── -->
+<p-dialog
+  [header]="editingCat() ? 'Edit Category' : 'New Category'"
+  [(visible)]="catDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '26rem' }"
+>
+  <form [formGroup]="catForm" class="settings-dialog__form">
+
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">
+        Code <span class="settings-dialog__required">*</span>
+        <small class="settings-dialog__hint"> (lowercase, hyphens — immutable)</small>
+      </label>
+      <input pInputText formControlName="code" placeholder="e.g. art-supplies" class="w-full" />
+      @if (catForm.get('code')?.invalid && catForm.get('code')?.touched) {
+        <small class="settings-dialog__error">Lowercase letters, numbers and hyphens only.</small>
+      }
+    </div>
+
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">Label <span class="settings-dialog__required">*</span></label>
+      <input pInputText formControlName="label" placeholder="e.g. Art Supplies" class="w-full" />
+      @if (catForm.get('label')?.invalid && catForm.get('label')?.touched) {
+        <small class="settings-dialog__error">Label is required.</small>
+      }
+    </div>
+
+    <div class="settings-dialog__row">
+      <div class="settings-dialog__field">
+        <label class="settings-dialog__label">Color</label>
+        <div class="settings-dialog__color-wrap">
+          <input type="color" formControlName="color" class="settings-dialog__color-input" />
+          <span class="settings-dialog__color-hex">{{ catForm.get('color')?.value }}</span>
+        </div>
+      </div>
+      <div class="settings-dialog__field">
+        <label class="settings-dialog__label">Sort Order</label>
+        <p-inputnumber formControlName="sortOrder" [min]="1" [showButtons]="true" class="w-full" />
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeCatDialog()" [disabled]="catSaving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="catSaving()" (onClick)="saveCat()" />
+  </ng-template>
+</p-dialog>
+
+<!-- ── Status dialog ───────────────────────────────────────────────────── -->
+<p-dialog
+  [header]="editingStatus() ? 'Edit Status' : 'New Status'"
+  [(visible)]="statusDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '26rem' }"
+>
+  <form [formGroup]="statusForm" class="settings-dialog__form">
+
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">
+        Code <span class="settings-dialog__required">*</span>
+        <small class="settings-dialog__hint"> (lowercase, hyphens — immutable)</small>
+      </label>
+      <input pInputText formControlName="code" placeholder="e.g. on-hold" class="w-full" />
+      @if (statusForm.get('code')?.invalid && statusForm.get('code')?.touched) {
+        <small class="settings-dialog__error">Lowercase letters, numbers and hyphens only.</small>
+      }
+    </div>
+
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">Label <span class="settings-dialog__required">*</span></label>
+      <input pInputText formControlName="label" placeholder="e.g. On Hold" class="w-full" />
+      @if (statusForm.get('label')?.invalid && statusForm.get('label')?.touched) {
+        <small class="settings-dialog__error">Label is required.</small>
+      }
+    </div>
+
+    <div class="settings-dialog__row">
+      <div class="settings-dialog__field">
+        <label class="settings-dialog__label">Color</label>
+        <div class="settings-dialog__color-wrap">
+          <input type="color" formControlName="color" class="settings-dialog__color-input" />
+          <span class="settings-dialog__color-hex">{{ statusForm.get('color')?.value }}</span>
+        </div>
+      </div>
+      <div class="settings-dialog__field">
+        <label class="settings-dialog__label">Sort Order</label>
+        <p-inputnumber formControlName="sortOrder" [min]="1" [showButtons]="true" class="w-full" />
+      </div>
+    </div>
+
+    <div class="settings-dialog__toggle">
+      <p-toggleswitch formControlName="isTerminal" />
+      <span class="settings-dialog__toggle-text">
+        Terminal status
+        <small class="settings-dialog__toggle-hint">Requests in this status are considered closed (no further transitions).</small>
+      </span>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeStatusDialog()" [disabled]="statusSaving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="statusSaving()" (onClick)="saveStatus()" />
+  </ng-template>
+</p-dialog>

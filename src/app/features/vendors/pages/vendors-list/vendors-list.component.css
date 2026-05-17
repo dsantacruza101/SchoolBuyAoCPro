@@ -1,0 +1,240 @@
+/* ── Page layout ─────────────────────────────────────────────────────────── */
+
+.vendors-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.vendors-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.vendors-page__title {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.vendors-page__subtitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+
+.vendors-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: var(--p-text-muted-color);
+  text-align: center;
+}
+
+.vendors-page__empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.4;
+}
+
+/* ── Card grid ───────────────────────────────────────────────────────────── */
+
+.vendors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* ── Vendor card ─────────────────────────────────────────────────────────── */
+
+.vendor-card {
+  background: var(--p-surface-card);
+  border: 1px solid var(--p-surface-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.vendor-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vendor-card__name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vendor-card__name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--p-text-color);
+}
+
+.vendor-card__category {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+}
+
+/* ── Contact info ────────────────────────────────────────────────────────── */
+
+.vendor-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.vendor-card__info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+  overflow: hidden;
+}
+
+.vendor-card__info-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vendor-card__info-icon {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* ── YTD spend ───────────────────────────────────────────────────────────── */
+
+.vendor-card__spend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--p-surface-ground);
+  border-radius: 0.375rem;
+}
+
+.vendor-card__spend-label {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+  font-weight: 500;
+}
+
+.vendor-card__spend-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+/* ── Card footer ─────────────────────────────────────────────────────────── */
+
+.vendor-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--p-surface-border);
+}
+
+.vendor-card__toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+}
+
+.vendor-card__actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* ── Dialog form ─────────────────────────────────────────────────────────── */
+
+.vendor-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vendor-dialog__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.vendor-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.vendor-dialog__label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.vendor-dialog__required {
+  color: var(--p-red-500, #ef4444);
+  margin-left: 0.125rem;
+}
+
+.vendor-dialog__error {
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.75rem;
+}
+
+.vendor-dialog__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--p-surface-ground);
+  border-radius: 0.375rem;
+}
+
+.vendor-dialog__toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--p-text-color);
+}
+
+.vendor-dialog__toggle-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--p-text-muted-color);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 575px) {
+  .vendors-page__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vendor-dialog__row {
+    grid-template-columns: 1fr;
+  }
+}

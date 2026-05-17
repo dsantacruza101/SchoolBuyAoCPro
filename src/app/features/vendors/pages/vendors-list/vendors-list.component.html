@@ -1,0 +1,219 @@
+<p-confirmDialog />
+
+<div class="vendors-page">
+
+  <!-- Page header -->
+  <div class="vendors-page__header">
+    <div>
+      <h2 class="vendors-page__title">Vendors</h2>
+      <p class="vendors-page__subtitle">Approved supplier directory. Toggle auto-approve eligibility per vendor.</p>
+    </div>
+    <p-button label="Add Vendor" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Empty state -->
+  @if (displayItems().length === 0) {
+    <div class="vendors-page__empty">
+      <i class="pi pi-shop vendors-page__empty-icon"></i>
+      <p>No vendors yet. Click "Add Vendor" to add your first supplier.</p>
+    </div>
+  }
+
+  <!-- Card grid -->
+  <div class="vendors-grid">
+    @for (item of displayItems(); track item.id) {
+      <div class="vendor-card">
+
+        <!-- Card header -->
+        <div class="vendor-card__header">
+          <div class="vendor-card__name-row">
+            <span class="vendor-card__name">{{ item.name }}</span>
+            <p-tag
+              [value]="statusLabel(item.status)"
+              [severity]="statusSeverity(item.status)"
+              class="vendor-card__status"
+            />
+          </div>
+          @if (item.category) {
+            <span class="vendor-card__category">{{ item.category }}</span>
+          }
+        </div>
+
+        <!-- Contact info -->
+        <div class="vendor-card__info">
+          @if (item.contactName) {
+            <div class="vendor-card__info-row">
+              <i class="pi pi-user vendor-card__info-icon"></i>
+              <span>{{ item.contactName }}</span>
+            </div>
+          }
+          @if (item.contactEmail) {
+            <div class="vendor-card__info-row">
+              <i class="pi pi-envelope vendor-card__info-icon"></i>
+              <span>{{ item.contactEmail }}</span>
+            </div>
+          }
+          @if (item.contactPhone) {
+            <div class="vendor-card__info-row">
+              <i class="pi pi-phone vendor-card__info-icon"></i>
+              <span>{{ item.contactPhone }}</span>
+            </div>
+          }
+          @if (item.website) {
+            <div class="vendor-card__info-row">
+              <i class="pi pi-globe vendor-card__info-icon"></i>
+              <span>{{ item.website }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- YTD spend -->
+        <div class="vendor-card__spend">
+          <span class="vendor-card__spend-label">YTD Spend</span>
+          <span class="vendor-card__spend-value">
+            {{ item.spendYTD | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+        </div>
+
+        <!-- Footer: auto-approve toggle + actions -->
+        <div class="vendor-card__footer">
+          <label class="vendor-card__toggle-label">
+            <p-toggleswitch
+              [ngModel]="item.isApprovedForAutoApprove"
+              (ngModelChange)="toggleAutoApprove(item, $event)"
+              pTooltip="Auto-approve eligible"
+            />
+            <span>Auto-approve</span>
+          </label>
+
+          <div class="vendor-card__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              pTooltip="Edit"
+              (onClick)="openEdit(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              pTooltip="Delete"
+              (onClick)="confirmDelete(item)"
+            />
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- Create / Edit dialog -->
+<p-dialog
+  [header]="editing() ? 'Edit: ' + editing()!.name : 'New Vendor'"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '30rem' }"
+>
+  <form [formGroup]="form" class="vendor-dialog__form">
+
+    <!-- Name -->
+    <div class="vendor-dialog__field">
+      <label for="vendorName" class="vendor-dialog__label">
+        Name <span class="vendor-dialog__required">*</span>
+      </label>
+      <input id="vendorName" pInputText formControlName="name"
+        placeholder="e.g. Amazon" class="w-full" />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <small class="vendor-dialog__error">Name is required.</small>
+      }
+    </div>
+
+    <!-- Status + Terms (2 columns) -->
+    <div class="vendor-dialog__row">
+      <div class="vendor-dialog__field">
+        <label for="vendorStatus" class="vendor-dialog__label">
+          Status <span class="vendor-dialog__required">*</span>
+        </label>
+        <p-select id="vendorStatus" formControlName="status"
+          [options]="statusOptions" optionLabel="label" optionValue="value"
+          class="w-full" />
+      </div>
+      <div class="vendor-dialog__field">
+        <label for="vendorTerms" class="vendor-dialog__label">Terms</label>
+        <p-select id="vendorTerms" formControlName="terms"
+          [options]="termsOptions" optionLabel="label" optionValue="value"
+          placeholder="Select" [showClear]="true" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Category + Account (2 columns) -->
+    <div class="vendor-dialog__row">
+      <div class="vendor-dialog__field">
+        <label for="vendorCategory" class="vendor-dialog__label">Category</label>
+        <input id="vendorCategory" pInputText formControlName="category"
+          placeholder="e.g. Tech / Supplies" class="w-full" />
+      </div>
+      <div class="vendor-dialog__field">
+        <label for="vendorAccount" class="vendor-dialog__label">Account #</label>
+        <input id="vendorAccount" pInputText formControlName="account"
+          placeholder="e.g. ESELEM-8821" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Website -->
+    <div class="vendor-dialog__field">
+      <label for="vendorWebsite" class="vendor-dialog__label">Website</label>
+      <input id="vendorWebsite" pInputText formControlName="website"
+        placeholder="e.g. amazon.com" class="w-full" />
+    </div>
+
+    <!-- Contact Name + Email (2 columns) -->
+    <div class="vendor-dialog__row">
+      <div class="vendor-dialog__field">
+        <label for="vendorContactName" class="vendor-dialog__label">Contact Name</label>
+        <input id="vendorContactName" pInputText formControlName="contactName"
+          placeholder="e.g. Sarah" class="w-full" />
+      </div>
+      <div class="vendor-dialog__field">
+        <label for="vendorContactEmail" class="vendor-dialog__label">Contact Email</label>
+        <input id="vendorContactEmail" pInputText formControlName="contactEmail"
+          placeholder="e.g. rep@amazon.com" class="w-full" />
+      </div>
+    </div>
+
+    <!-- Contact Phone -->
+    <div class="vendor-dialog__field">
+      <label for="vendorContactPhone" class="vendor-dialog__label">Contact Phone</label>
+      <input id="vendorContactPhone" pInputText formControlName="contactPhone"
+        placeholder="e.g. 800-555-0100" class="w-full" />
+    </div>
+
+    <!-- Notes -->
+    <div class="vendor-dialog__field">
+      <label for="vendorNotes" class="vendor-dialog__label">Notes</label>
+      <textarea id="vendorNotes" pTextarea formControlName="notes"
+        rows="2" placeholder="Internal notes..." class="w-full"></textarea>
+    </div>
+
+    <!-- Auto-approve toggle -->
+    <div class="vendor-dialog__toggle">
+      <p-toggleswitch formControlName="isApprovedForAutoApprove" />
+      <span class="vendor-dialog__toggle-text">
+        Approved for auto-approve
+        <small class="vendor-dialog__toggle-hint">Enables auto-approval for low-value orders to this vendor.</small>
+      </span>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" (onClick)="closeDialog()" [disabled]="saving()" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>
