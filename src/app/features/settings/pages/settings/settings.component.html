@@ -45,7 +45,6 @@
                     <th>Color</th>
                     <th>Code</th>
                     <th>Label</th>
-                    <th>Sort</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -57,7 +56,6 @@
                       </td>
                       <td><code class="settings-table__code">{{ item.code }}</code></td>
                       <td>{{ item.label }}</td>
-                      <td>{{ item.sortOrder }}</td>
                       <td class="settings-table__actions">
                         <p-button icon="pi pi-pencil" [text]="true" size="small" pTooltip="Edit" (onClick)="openEditCat(item)" />
                         <p-button icon="pi pi-trash" [text]="true" size="small" severity="danger" pTooltip="Delete" (onClick)="confirmDeleteCat(item)" />
@@ -94,7 +92,6 @@
                     <th>Code</th>
                     <th>Label</th>
                     <th>Terminal</th>
-                    <th>Sort</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -118,7 +115,6 @@
                           <span class="settings-table__dash">—</span>
                         }
                       </td>
-                      <td>{{ item.sortOrder }}</td>
                       <td class="settings-table__actions">
                         <p-button icon="pi pi-pencil" [text]="true" size="small" pTooltip="Edit" (onClick)="openEditStatus(item)" />
                         <p-button
@@ -176,17 +172,11 @@
       }
     </div>
 
-    <div class="settings-dialog__row">
-      <div class="settings-dialog__field">
-        <label class="settings-dialog__label">Color</label>
-        <div class="settings-dialog__color-wrap">
-          <input type="color" formControlName="color" class="settings-dialog__color-input" />
-          <span class="settings-dialog__color-hex">{{ catForm.get('color')?.value }}</span>
-        </div>
-      </div>
-      <div class="settings-dialog__field">
-        <label class="settings-dialog__label">Sort Order</label>
-        <p-inputnumber formControlName="sortOrder" [min]="1" [showButtons]="true" class="w-full" />
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">Color</label>
+      <div class="settings-dialog__color-wrap">
+        <input type="color" formControlName="color" class="settings-dialog__color-input" />
+        <span class="settings-dialog__color-hex">{{ catForm.get('color')?.value }}</span>
       </div>
     </div>
 
@@ -228,17 +218,11 @@
       }
     </div>
 
-    <div class="settings-dialog__row">
-      <div class="settings-dialog__field">
-        <label class="settings-dialog__label">Color</label>
-        <div class="settings-dialog__color-wrap">
-          <input type="color" formControlName="color" class="settings-dialog__color-input" />
-          <span class="settings-dialog__color-hex">{{ statusForm.get('color')?.value }}</span>
-        </div>
-      </div>
-      <div class="settings-dialog__field">
-        <label class="settings-dialog__label">Sort Order</label>
-        <p-inputnumber formControlName="sortOrder" [min]="1" [showButtons]="true" class="w-full" />
+    <div class="settings-dialog__field">
+      <label class="settings-dialog__label">Color</label>
+      <div class="settings-dialog__color-wrap">
+        <input type="color" formControlName="color" class="settings-dialog__color-input" />
+        <span class="settings-dialog__color-hex">{{ statusForm.get('color')?.value }}</span>
       </div>
     </div>
 

@@ -15,17 +15,17 @@ import { firebaseConfig } from './core/config';
 const AppPreset = definePreset(Aura, {
   semantic: {
     primary: {
-      50: '{indigo.50}',
-      100: '{indigo.100}',
-      200: '{indigo.200}',
-      300: '{indigo.300}',
-      400: '{indigo.400}',
-      500: '{indigo.500}',
-      600: '{indigo.600}',
-      700: '{indigo.700}',
-      800: '{indigo.800}',
-      900: '{indigo.900}',
-      950: '{indigo.950}',
+      50:  '#EBF4FC',
+      100: '#D6E8F7',
+      200: '#A1C9EE',
+      300: '#6CA9E6',
+      400: '#378ADD',
+      500: '#185FA5',
+      600: '#1A3A5C',
+      700: '#142C45',
+      800: '#0E2033',
+      900: '#0A1725',
+      950: '#07101A',
     },
   },
 });

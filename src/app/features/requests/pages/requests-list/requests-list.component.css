@@ -25,6 +25,37 @@
   color: var(--p-text-muted-color);
 }
 
+/* Filter bar */
+.req-list-page__filters {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.req-list-page__search {
+  width: 14rem;
+}
+
+.req-list-page__filter-select {
+  width: 11rem;
+}
+
+.req-list-page__count {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+}
+
+/* Description column — truncate long text */
+.req-list-page__desc {
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Empty state inside table */
 .req-list-page__empty {
   display: flex;
   flex-direction: column;
@@ -44,5 +75,19 @@
   .req-list-page__header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .req-list-page__filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .req-list-page__search,
+  .req-list-page__filter-select {
+    width: 100%;
+  }
+
+  .req-list-page__count {
+    margin-left: 0;
   }
 }

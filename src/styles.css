@@ -4,18 +4,62 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
 
 /* =========================================================
-   Design Tokens — aliased to PrimeNG CSS variables
-   Colors come from PrimeNG Aura Indigo — no hardcoded hex.
-   These aliases exist so custom layout components (sidebar,
-   topbar, KPI cards) can reference a single token name
-   without importing PrimeNG internals directly.
+   Brand Palette — extracted from mockup.html
+   These match the mockup exactly. Use them in component CSS
+   and in template inline styles. The PrimeNG primary preset
+   (see app.config.ts) is also anchored on these values.
    ========================================================= */
 :root {
-  /* Primary — resolved by PrimeNG Aura Indigo preset */
+  /* Navy / Blue scale */
+  --navy: #1A3A5C;
+  --blue: #185FA5;
+  --bm:   #378ADD;
+  --bl:   #D6E8F7;
+  --bx:   #EBF4FC;
+
+  /* Green — approved / healthy */
+  --green: #27500A;
+  --gm:    #3B6D11;
+  --gl:    #EAF3DE;
+
+  /* Amber — pending / warning */
+  --amber: #BA7517;
+  --al:    #FAEEDA;
+
+  /* Red — denied / critical */
+  --red: #A32D2D;
+  --rl:  #FCEBEB;
+
+  /* Orange — setup */
+  --or: #C4600A;
+  --ol: #FEF0E7;
+
+  /* Neutral gray scale (warm-tinted) */
+  --g50:  #F8F8F6;
+  --g100: #F1EFE8;
+  --g200: #D8D8D4;
+  --g300: #C0C0BA;
+  --g400: #9A9A94;
+  --g600: #6A6A64;
+  --g700: #4A4A46;
+  --g900: #1A1A18;
+}
+
+/* =========================================================
+   Design Tokens — aliased to PrimeNG CSS variables
+   PrimeNG primary preset is anchored on the brand palette
+   above (see app.config.ts). These aliases expose a stable
+   semantic name for custom layout components.
+   ========================================================= */
+:root {
+  /* Primary — resolved by the custom AoC preset */
   --color-primary:         var(--p-primary-500);
-  --color-primary-dark:    var(--p-primary-700);
+  --color-primary-dark:    var(--p-primary-600);
   --color-primary-light:   var(--p-primary-100);
   --color-primary-text:    var(--p-primary-contrast-500);
+
+  /* Layout accent — sidebar uses this directly */
+  --color-sidebar:         var(--navy);
 
   /* Surfaces */
   --color-bg:              var(--p-surface-ground);

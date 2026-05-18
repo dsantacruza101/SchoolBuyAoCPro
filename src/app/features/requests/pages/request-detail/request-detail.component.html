@@ -1,0 +1,227 @@
+<div class="req-detail-page">
+
+  <!-- Back link -->
+  <div>
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Purchase Requests"
+      [text]="true"
+      size="small"
+      routerLink="/requests"
+    />
+  </div>
+
+  @if (request() === null) {
+    <!-- Loading skeleton -->
+    <div class="req-detail-page__skeleton">
+      <p-skeleton height="2rem" width="60%" />
+      <p-skeleton height="1rem" width="40%" styleClass="mt-2" />
+      <p-skeleton height="12rem" styleClass="mt-4" />
+    </div>
+
+  } @else if (request(); as req) {
+
+    <!-- Header -->
+    <div class="req-detail-page__header">
+      <div class="req-detail-page__header-text">
+        <h2 class="req-detail-page__title">{{ req.description }}</h2>
+        <p class="req-detail-page__meta">
+          Submitted {{ req.requestDate?.toDate() | date:'MMMM d, y' }}
+          @if (req.staffName) { by <strong>{{ req.staffName }}</strong> }
+          &nbsp;·&nbsp; FY {{ req.fiscalYear }}
+        </p>
+      </div>
+
+      <div class="req-detail-page__header-actions">
+        <p-tag
+          [value]="statusLabel(req.statusCode)"
+          [severity]="statusSeverity(req.statusCode)"
+          [rounded]="true"
+          class="req-detail-page__status-tag"
+        />
+
+        @if (canApprove()) {
+          <p-button
+            label="Approve"
+            icon="pi pi-check"
+            severity="success"
+            [loading]="saving()"
+            (onClick)="changeStatus('approved')"
+          />
+        }
+        @if (canDeny()) {
+          <p-button
+            label="Deny"
+            icon="pi pi-times"
+            severity="danger"
+            [outlined]="true"
+            [loading]="saving()"
+            (onClick)="changeStatus('denied')"
+          />
+        }
+        @if (canMarkOrdered()) {
+          <p-button
+            label="Mark Ordered"
+            icon="pi pi-shopping-cart"
+            [loading]="saving()"
+            (onClick)="changeStatus('ordered')"
+          />
+        }
+        @if (canMarkReceived()) {
+          <p-button
+            label="Mark Received"
+            icon="pi pi-box"
+            severity="success"
+            [loading]="saving()"
+            (onClick)="changeStatus('received')"
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Body grid: details + audit -->
+    <div class="req-detail-page__body">
+
+      <!-- Details card -->
+      <div class="req-detail-card">
+        <h3 class="req-detail-card__heading">Request Details</h3>
+
+        <div class="req-detail-card__grid">
+
+          <div class="req-detail-field">
+            <span class="req-detail-field__label">Vendor</span>
+            <span class="req-detail-field__value">{{ req.vendorName }}</span>
+          </div>
+
+          <div class="req-detail-field">
+            <span class="req-detail-field__label">Budget Source</span>
+            <span class="req-detail-field__value">{{ budgetSourceLabel(req) }}</span>
+          </div>
+
+          <div class="req-detail-field">
+            <span class="req-detail-field__label">Unit Price</span>
+            <span class="req-detail-field__value mono">
+              {{ req.unitPrice | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+          </div>
+
+          <div class="req-detail-field">
+            <span class="req-detail-field__label">Quantity</span>
+            <span class="req-detail-field__value mono">{{ req.quantity }}</span>
+          </div>
+
+          <div class="req-detail-field req-detail-field--highlight">
+            <span class="req-detail-field__label">Total</span>
+            <span class="req-detail-field__value mono req-detail-field__total">
+              {{ req.totalPrice | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+          </div>
+
+          @if (req.categoryCode) {
+            <div class="req-detail-field">
+              <span class="req-detail-field__label">Category</span>
+              <span class="req-detail-field__value">{{ req.categoryCode }}</span>
+            </div>
+          }
+
+          @if (req.poNumber) {
+            <div class="req-detail-field">
+              <span class="req-detail-field__label">PO Number</span>
+              <span class="req-detail-field__value mono">{{ req.poNumber }}</span>
+            </div>
+          }
+
+          @if (req.approvedByLabel) {
+            <div class="req-detail-field">
+              <span class="req-detail-field__label">Approved By</span>
+              <span class="req-detail-field__value">{{ req.approvedByLabel }}</span>
+            </div>
+          }
+
+          @if (req.dateOrdered) {
+            <div class="req-detail-field">
+              <span class="req-detail-field__label">Date Ordered</span>
+              <span class="req-detail-field__value">
+                {{ req.dateOrdered.toDate() | date:'MM/dd/yyyy' }}
+              </span>
+            </div>
+          }
+
+          @if (req.dateReceived) {
+            <div class="req-detail-field">
+              <span class="req-detail-field__label">Date Received</span>
+              <span class="req-detail-field__value">
+                {{ req.dateReceived.toDate() | date:'MM/dd/yyyy' }}
+              </span>
+            </div>
+          }
+
+        </div>
+
+        @if (req.itemUrl) {
+          <p-divider />
+          <div class="req-detail-field">
+            <span class="req-detail-field__label">Item URL</span>
+            <a [href]="req.itemUrl" target="_blank" rel="noopener" class="req-detail-card__link">
+              {{ req.itemUrl }}
+              <i class="pi pi-external-link" style="font-size: 0.7rem"></i>
+            </a>
+          </div>
+        }
+
+        @if (req.notes) {
+          <p-divider />
+          <div class="req-detail-field req-detail-field--notes">
+            <span class="req-detail-field__label">Notes</span>
+            <p class="req-detail-field__value">{{ req.notes }}</p>
+          </div>
+        }
+
+      </div>
+
+      <!-- Audit timeline card -->
+      <div class="req-audit-card">
+        <h3 class="req-detail-card__heading">History</h3>
+
+        @if (audit().length === 0) {
+          <p class="req-audit-card__empty">No history yet.</p>
+        } @else {
+          <p-timeline [value]="audit()" styleClass="req-audit-timeline">
+            <ng-template pTemplate="marker" let-entry>
+              <span
+                class="req-audit-timeline__marker"
+                [style.background]="auditColor(entry.action)"
+              >
+                <i [class]="auditIcon(entry.action)"></i>
+              </span>
+            </ng-template>
+            <ng-template pTemplate="content" let-entry>
+              <div class="req-audit-entry">
+                <div class="req-audit-entry__action">{{ statusLabel(entry.toStatus) }}</div>
+                <div class="req-audit-entry__meta">
+                  {{ entry.byLabel }}
+                  @if (entry.timestamp) {
+                    · {{ entry.timestamp.toDate() | date:'MM/dd/yy h:mm a' }}
+                  }
+                </div>
+                @if (entry.note) {
+                  <div class="req-audit-entry__note">{{ entry.note }}</div>
+                }
+              </div>
+            </ng-template>
+          </p-timeline>
+        }
+      </div>
+
+    </div>
+
+  } @else {
+    <!-- Not found -->
+    <div class="req-detail-page__not-found">
+      <i class="pi pi-exclamation-triangle"></i>
+      <p>Request not found.</p>
+      <p-button label="Back to Requests" routerLink="/requests" />
+    </div>
+  }
+
+</div>

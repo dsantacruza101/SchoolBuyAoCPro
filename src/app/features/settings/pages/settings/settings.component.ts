@@ -5,7 +5,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
@@ -24,7 +23,6 @@ import { CategoryFormModel, CategoryModel, StatusFormModel, StatusModel } from '
     ButtonModule,
     ConfirmDialogModule,
     DialogModule,
-    InputNumberModule,
     InputTextModule,
     Tab,
     TabList,
@@ -70,10 +68,9 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.catForm = this.fb.group({
-      code:      ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
-      label:     ['', Validators.required],
-      color:     ['#6366f1', Validators.required],
-      sortOrder: [1, [Validators.required, Validators.min(1)]],
+      code:  ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
+      label: ['', Validators.required],
+      color: ['#6366f1', Validators.required],
     });
 
     this.statusForm = this.fb.group({
@@ -81,7 +78,6 @@ export class SettingsComponent implements OnInit {
       label:      ['', Validators.required],
       color:      ['#6366f1', Validators.required],
       isTerminal: [false],
-      sortOrder:  [1, [Validators.required, Validators.min(1)]],
     });
   }
 
@@ -89,16 +85,14 @@ export class SettingsComponent implements OnInit {
 
   openCreateCat(): void {
     this.editingCat.set(null);
-    this.catForm.reset({ code: '', label: '', color: '#6366f1', sortOrder: 1 });
+    this.catForm.reset({ code: '', label: '', color: '#6366f1' });
     this.catForm.get('code')?.enable();
     this.catDialogVisible.set(true);
   }
 
   openEditCat(item: CategoryModel): void {
     this.editingCat.set(item);
-    this.catForm.patchValue({
-      code: item.code, label: item.label, color: item.color, sortOrder: item.sortOrder,
-    });
+    this.catForm.patchValue({ code: item.code, label: item.label, color: item.color });
     this.catForm.get('code')?.disable();
     this.catDialogVisible.set(true);
   }
@@ -118,10 +112,10 @@ export class SettingsComponent implements OnInit {
 
     try {
       if (item) {
-        await this.catService.update(item.code, { label: raw.label, color: raw.color, sortOrder: raw.sortOrder });
+        await this.catService.update(item.code, { label: raw.label, color: raw.color });
         this.msg.add({ severity: 'success', summary: 'Updated', detail: raw.label });
       } else {
-        await this.catService.create(raw);
+        await this.catService.create({ ...raw, sortOrder: this.categories().length + 1 });
         this.msg.add({ severity: 'success', summary: 'Created', detail: raw.label });
       }
       this.closeCatDialog();
@@ -155,7 +149,7 @@ export class SettingsComponent implements OnInit {
 
   openCreateStatus(): void {
     this.editingStatus.set(null);
-    this.statusForm.reset({ code: '', label: '', color: '#6366f1', isTerminal: false, sortOrder: 1 });
+    this.statusForm.reset({ code: '', label: '', color: '#6366f1', isTerminal: false });
     this.statusForm.get('code')?.enable();
     this.statusDialogVisible.set(true);
   }
@@ -163,8 +157,7 @@ export class SettingsComponent implements OnInit {
   openEditStatus(item: StatusModel): void {
     this.editingStatus.set(item);
     this.statusForm.patchValue({
-      code: item.code, label: item.label, color: item.color,
-      isTerminal: item.isTerminal, sortOrder: item.sortOrder,
+      code: item.code, label: item.label, color: item.color, isTerminal: item.isTerminal,
     });
     this.statusForm.get('code')?.disable();
     this.statusDialogVisible.set(true);
@@ -186,12 +179,11 @@ export class SettingsComponent implements OnInit {
     try {
       if (item) {
         await this.statusService.update(item.code, {
-          label: raw.label, color: raw.color,
-          isTerminal: raw.isTerminal, sortOrder: raw.sortOrder,
+          label: raw.label, color: raw.color, isTerminal: raw.isTerminal,
         });
         this.msg.add({ severity: 'success', summary: 'Updated', detail: raw.label });
       } else {
-        await this.statusService.create(raw);
+        await this.statusService.create({ ...raw, sortOrder: this.statuses().length + 1 });
         this.msg.add({ severity: 'success', summary: 'Created', detail: raw.label });
       }
       this.closeStatusDialog();

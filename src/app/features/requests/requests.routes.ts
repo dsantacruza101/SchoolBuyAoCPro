@@ -19,4 +19,13 @@ export const requestsRoutes: Routes = [
         (m) => m.RequestNewComponent,
       ),
   },
+  {
+    path: ':id',
+    canActivate: [roleGuard],
+    data: { cap: 'requests.view', title: 'Request Detail' },
+    loadComponent: () =>
+      import('./pages/request-detail/request-detail.component').then(
+        (m) => m.RequestDetailComponent,
+      ),
+  },
 ];

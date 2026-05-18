@@ -1,5 +1,16 @@
 import { Timestamp } from '@angular/fire/firestore';
 
+export interface AuditEntryModel {
+  id: string;
+  action: string;
+  fromStatus: string;
+  toStatus: string;
+  byUid: string;
+  byLabel: string;
+  note: string | null;
+  timestamp: Timestamp | null;
+}
+
 export type BudgetSourceKind = 'department' | 'personal' | 'event';
 
 export interface RequestModel {
